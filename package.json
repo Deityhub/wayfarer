@@ -1,0 +1,14 @@
+{
+  "name": "wayfarer",
+  "version": "1.0.0",
+  "description": "A public bus transportation booking server",
+  "main": "index.js",
+  "repository": "https://github.com/Deityhub/wayfarer.git",
+  "author": "Ojini Chizoba Jude <judoc96@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.18.0"
+  }
+}
