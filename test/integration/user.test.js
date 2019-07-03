@@ -179,4 +179,95 @@ describe('User Test', () => {
         });
     });
   });
+
+  describe('POST /auth/signin', () => {
+    const email = 'test@test.com';
+    const first_name = 'Michael';
+    const last_name = 'Okeke';
+    const password = 'superpassword';
+    let details = { email, password };
+    let client;
+
+    before(async () => {
+      client = await pool.connect();
+      await client.query(
+        'CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
+      );
+    });
+
+    after(async () => {
+      await client.query('DROP TABLE IF EXISTS users');
+      client.release();
+    });
+
+    it('should create a user', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/auth/signup')
+        .send({
+          email,
+          first_name,
+          last_name,
+          password,
+        })
+        .end((err, res) => {
+          if (err) return;
+
+          expect(res).to.have.status(201);
+          done();
+        });
+    });
+
+    it('should be a function', () => {
+      expect(user.signIn).to.be.a('function');
+    });
+
+    it('should return status code 200, on successful signin', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/auth/signin')
+        .send(details)
+        .end((err, res) => {
+          if (err) return;
+
+          expect(res).to.have.status(200);
+          done();
+        });
+    });
+
+    it('should return users id, on successful signin', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/auth/signin')
+        .send(details)
+        .end((err, res) => {
+          expect(res.body.data.user_id).to.be.greaterThan(0);
+          done();
+        });
+    });
+
+    it('should return whether user is an admin with a boolean value, on successful signin', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/auth/signin')
+        .send(details)
+        .end((err, res) => {
+          expect(res.body.data.is_admin).to.be.a('boolean');
+          done();
+        });
+    });
+
+    it('should return status code 401 when supplied with invalid credentials', (done) => {
+      details = { email: '', password: '' };
+      chai
+        .request(server)
+        .post('/api/v1/auth/signin')
+        .send(details)
+        .end((err, res) => {
+          expect(res).to.have.status(401);
+          expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
+  });
 });
