@@ -23,6 +23,35 @@ describe('isEmpty Utils Function', () => {
   it('should return true when passed an invalid value', () => {
     const output = isEmpty(null);
 
+    expect(output).to.be.a('boolean');
+    expect(output).to.eql(true);
+  });
+
+  it('should return false when a non empty object is passed', () => {
+    const output = isEmpty({ test: 'testing' });
+
+    expect(output).to.be.a('boolean');
+    expect(output).to.eql(false);
+  });
+
+  it('should return true when an empty object is passed', () => {
+    const output = isEmpty({});
+
+    expect(output).to.be.a('boolean');
+    expect(output).to.eql(true);
+  });
+
+  it('should return false when a non empty array is passed', () => {
+    const output = isEmpty([{ test: 'testing' }]);
+
+    expect(output).to.be.a('boolean');
+    expect(output).to.eql(false);
+  });
+
+  it('should return true when an empty array is passed', () => {
+    const output = isEmpty([]);
+
+    expect(output).to.be.a('boolean');
     expect(output).to.eql(true);
   });
 });
