@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
 const bcrypt = require('bcrypt');
@@ -5,7 +6,6 @@ const jwt = require('jsonwebtoken');
 const pool = require('../db');
 const isEmpty = require('../utils/isEmpty');
 
-// eslint-disable-next-line consistent-return
 const signUp = async (req, res, next) => {
   const {
     email, first_name, last_name, password,
@@ -14,7 +14,7 @@ const signUp = async (req, res, next) => {
 
   if (isEmpty(email) || isEmpty(first_name) || isEmpty(last_name) || isEmpty(password)) {
     req.status = 400;
-    next(new Error('All fiels are required for sign up'));
+    next(new Error('All fields are required for sign up'));
   }
 
   const salt = await bcrypt.genSalt(Number(process.env.SALT_ROUND));
@@ -39,7 +39,7 @@ const signUp = async (req, res, next) => {
 
     const { rows } = await client.query(regQuery);
 
-    if (!rows.length > 0) {
+    if (isEmpty(rows)) {
       next(new Error('User not created, please try again'));
     }
 
@@ -54,4 +54,46 @@ const signUp = async (req, res, next) => {
   }
 };
 
-module.exports = { signUp };
+const signIn = async (req, res, next) => {
+  const { email, password } = req.body;
+  const userQuery = {
+    text: 'SELECT * FROM users WHERE email = $1',
+    values: [email],
+  };
+
+  if (isEmpty(email) || isEmpty(password)) {
+    req.status = 401;
+    return next(new Error('Both email and password fields are required'));
+  }
+
+  const client = await pool.connect();
+
+  try {
+    const { rows } = await client.query(userQuery);
+    if (isEmpty(rows)) {
+      req.status = 401;
+      return next(new Error('Invalid log in details'));
+    }
+
+    const match = await bcrypt.compare(password, rows[0].password);
+    if (!match) {
+      req.status = 401;
+      return next(new Error('Invalid log in details'));
+    }
+
+    const token = jwt.sign({ user_id: rows[0].id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res
+      .status(200)
+      .send({
+        status: 'success',
+        data: { user_id: rows[0].id, is_admin: rows[0].is_admin, token },
+      });
+  } catch (error) {
+    next(error);
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { signUp, signIn };
