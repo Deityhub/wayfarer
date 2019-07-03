@@ -1,0 +1,6 @@
+{
+  "name": "WayFarer Api - production",
+  "database": {
+    "database": "wayfarer"
+  }
+}

@@ -1,7 +1,6 @@
 {
   "extends": "airbnb-base",
   "rules": {
-    "no-console": "error",
     "prefer-arrow-callback": "error"
   },
   "env": {
