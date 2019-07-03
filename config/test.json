@@ -1,0 +1,7 @@
+{
+  "name": "WayFarer Api - test",
+  "port": 4040,
+  "db": {
+    "database": "wayfarer_test"
+  }
+}
