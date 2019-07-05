@@ -4,5 +4,7 @@
     "password": "DB_PASSWORD",
     "host": "DB_HOST",
     "port": "DB_PORT"
-  }
+  },
+  "jwtKey": "JWT_SECRET",
+  "saltRound": "SALT_ROUND"
 }

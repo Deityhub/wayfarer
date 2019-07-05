@@ -6,14 +6,14 @@ describe('isEmpty Utils Function', () => {
     expect(isEmpty).to.be.a('function');
   });
 
-  it('should return false when value passed to it is not empty', () => {
+  it('should return false when value passed to it is string', () => {
     const output = isEmpty('hello world');
 
     expect(output).to.be.a('boolean');
     expect(output).to.eql(false);
   });
 
-  it('should return true when value passed to it is empty', () => {
+  it('should return true when value passed to it is empty quote', () => {
     const output = isEmpty('');
 
     expect(output).to.be.a('boolean');
@@ -53,5 +53,19 @@ describe('isEmpty Utils Function', () => {
 
     expect(output).to.be.a('boolean');
     expect(output).to.eql(true);
+  });
+
+  it('should return false when a number is passed', () => {
+    const output = isEmpty(2);
+
+    expect(output).to.be.a('boolean');
+    expect(output).to.eql(false);
+  });
+
+  it('should return false if a boolean value is passed to it', () => {
+    const output = isEmpty(true);
+
+    expect(output).to.be.a('boolean');
+    expect(output).to.eql(false);
   });
 });

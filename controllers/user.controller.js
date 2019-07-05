@@ -3,12 +3,17 @@
 /* eslint-disable no-console */
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const config = require('config');
 const pool = require('../db');
 const isEmpty = require('../utils/isEmpty');
 
 const signUp = async (req, res, next) => {
   const {
-    email, first_name, last_name, password,
+    // eslint-disable-next-line prefer-const
+    email,
+    first_name,
+    last_name,
+    password,
   } = req.body;
   const userTable = 'CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)';
 
@@ -17,7 +22,7 @@ const signUp = async (req, res, next) => {
     next(new Error('All fields are required for sign up'));
   }
 
-  const salt = await bcrypt.genSalt(Number(process.env.SALT_ROUND));
+  const salt = await bcrypt.genSalt(Number(config.get('saltRound')));
   const hashedPassword = await bcrypt.hash(password, salt);
 
   const regQuery = {
@@ -32,7 +37,7 @@ const signUp = async (req, res, next) => {
     await client.query(userTable);
 
     const users = await client.query('SELECT * FROM users WHERE email = $1', [email]);
-    if (users.rows.length > 0) {
+    if (!isEmpty(users.rows)) {
       req.status = 400;
       return next(new Error('User already exist, try another email'));
     }
@@ -44,7 +49,7 @@ const signUp = async (req, res, next) => {
     }
 
     const { id, is_admin } = rows[0];
-    const token = jwt.sign({ user_id: id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ email, is_admin }, config.get('jwtKey'), { expiresIn: '1h' });
 
     res.status(201).send({ status: 'success', data: { user_id: id, is_admin, token } });
   } catch (error) {
@@ -81,14 +86,16 @@ const signIn = async (req, res, next) => {
       return next(new Error('Invalid log in details'));
     }
 
-    const token = jwt.sign({ user_id: rows[0].id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { email: rows[0].email, is_admin: rows[0].is_admin },
+      config.get('jwtKey'),
+      { expiresIn: '1h' },
+    );
 
-    res
-      .status(200)
-      .send({
-        status: 'success',
-        data: { user_id: rows[0].id, is_admin: rows[0].is_admin, token },
-      });
+    res.status(200).send({
+      status: 'success',
+      data: { user_id: rows[0].id, is_admin: rows[0].is_admin, token },
+    });
   } catch (error) {
     next(error);
   } finally {

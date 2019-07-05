@@ -1,6 +1,8 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable camelcase */
 require('dotenv').config();
+const bcrypt = require('bcrypt');
+const config = require('config');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 
@@ -12,12 +14,12 @@ chai.use(chaiHttp);
 
 let server;
 
-describe('User Test', () => {
-  before(() => {
+describe('User Routes', () => {
+  before('testing user routes', () => {
     // eslint-disable-next-line global-require
     server = require('../../index');
   });
-  after(() => {
+  after('testing user routes', () => {
     server.close();
   });
 
@@ -135,29 +137,18 @@ describe('User Test', () => {
       await client.query(
         'CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
       );
+
+      const salt = await bcrypt.genSalt(Number(config.get('saltRound')));
+      const hashedPassword = await bcrypt.hash(password, salt);
+      await client.query({
+        text: 'INSERT INTO users(email, first_name, last_name, password) VALUES($1, $2, $3, $4)',
+        values: [email, first_name, last_name, hashedPassword],
+      });
     });
 
     after(async () => {
       await client.query('DROP TABLE IF EXISTS users');
       client.release();
-    });
-
-    it('should create a user', (done) => {
-      chai
-        .request(server)
-        .post('/api/v1/auth/signup')
-        .send({
-          email,
-          first_name,
-          last_name,
-          password,
-        })
-        .end((err, res) => {
-          if (err) return;
-
-          expect(res).to.have.status(201);
-          done();
-        });
     });
 
     it('should return error and status code 400, when creating user with email already in database', (done) => {
@@ -193,29 +184,18 @@ describe('User Test', () => {
       await client.query(
         'CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
       );
+
+      const salt = await bcrypt.genSalt(Number(config.get('saltRound')));
+      const hashedPassword = await bcrypt.hash(password, salt);
+      await client.query({
+        text: 'INSERT INTO users(email, first_name, last_name, password) VALUES($1, $2, $3, $4)',
+        values: [email, first_name, last_name, hashedPassword],
+      });
     });
 
     after(async () => {
       await client.query('DROP TABLE IF EXISTS users');
       client.release();
-    });
-
-    it('should create a user', (done) => {
-      chai
-        .request(server)
-        .post('/api/v1/auth/signup')
-        .send({
-          email,
-          first_name,
-          last_name,
-          password,
-        })
-        .end((err, res) => {
-          if (err) return;
-
-          expect(res).to.have.status(201);
-          done();
-        });
     });
 
     it('should be a function', () => {
