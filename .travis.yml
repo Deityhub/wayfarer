@@ -11,4 +11,4 @@ services:
 before_script:
   - psql -c "CREATE DATABASE IF NOT EXISTS wayfarer_test;" -U postgres
   - psql -c "CREATE USER admin WITH PASSWORD 'admin';" -U postgres
-  - psql -c "GRANT ALL PRIVILEGES ON DATABASE wayfarer to admin;" -U postgres
+  - psql -c "GRANT ALL PRIVILEGES ON DATABASE wayfarer_test to admin;" -U postgres
