@@ -11,11 +11,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// TODO: setup cors for this project
-
 // call all my routes here
 routes(app);
 
+// handle all errors
 // eslint-disable-next-line no-unused-vars
 app.use('/api/v1', (err, req, res, next) => {
   if (app.get('env') === 'development') console.log(err);

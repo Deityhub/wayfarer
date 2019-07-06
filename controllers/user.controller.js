@@ -9,13 +9,12 @@ const isEmpty = require('../utils/isEmpty');
 
 const signUp = async (req, res, next) => {
   const {
-    // eslint-disable-next-line prefer-const
     email,
     first_name,
     last_name,
     password,
   } = req.body;
-  const userTable = 'CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)';
+  const userTable = 'CREATE TABLE IF NOT EXISTS users(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)';
 
   if (isEmpty(email) || isEmpty(first_name) || isEmpty(last_name) || isEmpty(password)) {
     req.status = 400;
