@@ -7,7 +7,7 @@ const routes = require('./routes');
 
 const app = express();
 // eslint-disable-next-line global-require
-if (app.get('env' === 'development')) require('dotenv').config();
+if (app.get('env' === 'development') || app.get('env' === 'test')) require('dotenv').config();
 
 app.use(cors());
 app.use(express.json());
