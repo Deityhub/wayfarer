@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node index.js",
-    "test": "NODE_ENV=test mocha --watch --recursive test/*",
+    "test": "NODE_ENV=test mocha --recursive test/*",
     "dev": "nodemon --delay 1500ms index.js"
   },
   "devDependencies": {
