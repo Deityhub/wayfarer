@@ -47,7 +47,7 @@ describe('Trip Routes', () => {
     client.release();
   });
 
-  describe('POST /api/v1/trips', () => {
+  describe('POST /api/v1/trip', () => {
     const number_plate = 'HIEH034-4';
     const manufacturer = 'Toyota';
     const model = 'LS343';
@@ -67,7 +67,7 @@ describe('Trip Routes', () => {
         values: [number_plate, manufacturer, model, year, capacity],
       });
     });
-
+      
     it('should signin a user', (done) => {
       chai
         .request(server)
