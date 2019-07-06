@@ -6,5 +6,6 @@ const isAdmin = require('../middlewares/isAdmin');
 const router = express.Router();
 
 router.post('/trips', tokenAuth, isAdmin, trip.createTrip);
+router.get('/trips', tokenAuth, trip.getAllTrips);
 
 module.exports = router;

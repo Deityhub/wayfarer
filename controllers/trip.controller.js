@@ -58,4 +58,19 @@ const createTrip = async (req, res, next) => {
   }
 };
 
-module.exports = { createTrip };
+const getAllTrips = async (req, res, next) => {
+  const tripQuery = 'SELECT * FROM trips';
+  const client = await pool.connect();
+
+  try {
+    const { rows } = await client.query(tripQuery);
+
+    res.status(200).send({ status: 'success', data: rows });
+  } catch (error) {
+    next(error);
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { createTrip, getAllTrips };
