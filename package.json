@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node index.js",
     "test": "NODE_ENV=test mocha --watch --recursive test/*",
-    "dev": "nodemon index.js"
+    "dev": "nodemon --delay 1500ms index.js"
   },
   "devDependencies": {
     "chai": "^4.2.0",
