@@ -8,18 +8,21 @@
   "license": "MIT",
   "scripts": {
     "start": "node index.js",
-    "test": "NODE_ENV=test mocha --recursive test/*",
+    "test": "NODE_ENV=test nyc mocha --recursive test/*",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "dev": "nodemon --delay 1500ms index.js"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
+    "coveralls": "^3.0.4",
     "dotenv": "^8.0.0",
     "eslint": "^5.3.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.18.0",
     "mocha": "^6.1.4",
-    "nodemon": "^1.19.1"
+    "nodemon": "^1.19.1",
+    "nyc": "^14.1.1"
   },
   "dependencies": {
     "bcrypt": "^3.0.6",
