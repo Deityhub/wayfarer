@@ -1,6 +1,6 @@
 {
   "name": "WayFarer Api - production",
-  "database": {
+  "db": {
     "database": "xctdflmf"
   }
 }
