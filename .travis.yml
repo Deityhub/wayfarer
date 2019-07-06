@@ -13,3 +13,5 @@ before_script:
   - psql -U postgres wayfarer_test -c 'CREATE EXTENSION "uuid-ossp";'
   - psql -c "CREATE USER admin WITH PASSWORD 'admin';" -U postgres
   - psql -c "GRANT ALL PRIVILEGES ON DATABASE wayfarer_test to admin;" -U postgres
+after_success:
+  - yarn run coverage
