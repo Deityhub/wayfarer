@@ -2,27 +2,29 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-console */
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const config = require('config');
 const pool = require('../db');
 const isEmpty = require('../utils/isEmpty');
+const hashPassword = require('../utils/hashPassword');
+const isValidEmail = require('../utils/isValidEmail');
+const tokenize = require('../utils/token');
 
 const signUp = async (req, res, next) => {
   const {
-    email,
-    first_name,
-    last_name,
-    password,
+    email, first_name, last_name, password,
   } = req.body;
   const userTable = 'CREATE TABLE IF NOT EXISTS users(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)';
 
   if (isEmpty(email) || isEmpty(first_name) || isEmpty(last_name) || isEmpty(password)) {
     req.status = 400;
-    next(new Error('All fields are required for sign up'));
+    return next(new Error('All fields are required for sign up'));
   }
 
-  const salt = await bcrypt.genSalt(Number(config.get('saltRound')));
-  const hashedPassword = await bcrypt.hash(password, salt);
+  if (!isValidEmail(email)) {
+    req.status = 400;
+    return next(new Error('Provide a valid email address'));
+  }
+
+  const hashedPassword = await hashPassword(password);
 
   const regQuery = {
     text:
@@ -43,12 +45,8 @@ const signUp = async (req, res, next) => {
 
     const { rows } = await client.query(regQuery);
 
-    if (isEmpty(rows)) {
-      next(new Error('User not created, please try again'));
-    }
-
     const { id, is_admin } = rows[0];
-    const token = jwt.sign({ email, is_admin }, config.get('jwtKey'), { expiresIn: '1h' });
+    const token = tokenize({ email, is_admin });
 
     res.status(201).send({ status: 'success', data: { user_id: id, is_admin, token } });
   } catch (error) {
@@ -66,7 +64,7 @@ const signIn = async (req, res, next) => {
   };
 
   if (isEmpty(email) || isEmpty(password)) {
-    req.status = 401;
+    req.status = 400;
     return next(new Error('Both email and password fields are required'));
   }
 
@@ -85,11 +83,7 @@ const signIn = async (req, res, next) => {
       return next(new Error('Invalid log in details'));
     }
 
-    const token = jwt.sign(
-      { email: rows[0].email, is_admin: rows[0].is_admin },
-      config.get('jwtKey'),
-      { expiresIn: '1h' },
-    );
+    const token = tokenize({ email: rows[0].email, is_admin: rows[0].is_admin });
 
     res.status(200).send({
       status: 'success',
