@@ -1,11 +1,10 @@
 /* eslint-disable camelcase */
 require('dotenv').config();
-const config = require('config');
-const bcrypt = require('bcrypt');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const { createBus } = require('../../controllers/bus.controller');
 const pool = require('../../db');
+const hashPassword = require('../../utils/hashPassword');
 
 const { expect } = chai;
 chai.use(chaiHttp);
@@ -54,8 +53,7 @@ describe('Bus Routes', () => {
         'CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
       );
 
-      const salt = await bcrypt.genSalt(Number(config.get('saltRound')));
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = await hashPassword(password);
       await client.query({
         text:
           'INSERT INTO users(email, first_name, last_name, password, is_admin) VALUES($1, $2, $3, $4, $5) RETURNING id, is_admin, email',

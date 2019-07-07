@@ -1,13 +1,12 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable camelcase */
 require('dotenv').config();
-const bcrypt = require('bcrypt');
-const config = require('config');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 
 const pool = require('../../db');
 const user = require('../../controllers/user.controller');
+const hashPassword = require('../../utils/hashPassword');
 
 const { expect } = chai;
 chai.use(chaiHttp);
@@ -61,6 +60,25 @@ describe('User Routes', () => {
 
           expect(res).to.have.status(201);
           expect(res.body.status).to.eql('success');
+          done();
+        });
+    });
+
+    it('should return status code 400 and error status, on using invalid email address', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/auth/signup')
+        .send({
+          email: 'ab@ab',
+          first_name,
+          last_name,
+          password,
+        })
+        .end((err, res) => {
+          if (err) return;
+
+          expect(res).to.have.status(400);
+          expect(res.body.status).to.eql('error');
           done();
         });
     });
@@ -138,8 +156,7 @@ describe('User Routes', () => {
         'CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
       );
 
-      const salt = await bcrypt.genSalt(Number(config.get('saltRound')));
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = await hashPassword(password);
       await client.query({
         text: 'INSERT INTO users(email, first_name, last_name, password) VALUES($1, $2, $3, $4)',
         values: [email, first_name, last_name, hashedPassword],
@@ -185,8 +202,7 @@ describe('User Routes', () => {
         'CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
       );
 
-      const salt = await bcrypt.genSalt(Number(config.get('saltRound')));
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = await hashPassword(password);
       await client.query({
         text: 'INSERT INTO users(email, first_name, last_name, password) VALUES($1, $2, $3, $4)',
         values: [email, first_name, last_name, hashedPassword],
@@ -211,6 +227,34 @@ describe('User Routes', () => {
           if (err) return;
 
           expect(res).to.have.status(200);
+          done();
+        });
+    });
+
+    it('should return status code 401 and status error, when using unregistered email', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/auth/signin')
+        .send({ email: 'abc@test.com', password })
+        .end((err, res) => {
+          if (err) return;
+
+          expect(res).to.have.status(401);
+          expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
+
+    it('should return status code 401 and status error, when password does not match registered password', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/auth/signin')
+        .send({ email, password: 'testingpassword' })
+        .end((err, res) => {
+          if (err) return;
+
+          expect(res).to.have.status(401);
+          expect(res.body.status).to.eql('error');
           done();
         });
     });
@@ -244,7 +288,7 @@ describe('User Routes', () => {
         .post('/api/v1/auth/signin')
         .send(details)
         .end((err, res) => {
-          expect(res).to.have.status(401);
+          expect(res).to.have.status(400);
           expect(res.body.status).to.eql('error');
           done();
         });
