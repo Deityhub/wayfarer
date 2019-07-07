@@ -8,7 +8,8 @@
   "license": "MIT",
   "scripts": {
     "start": "node index.js",
-    "test": "NODE_ENV=test nyc mocha --recursive test/*",
+    "test": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive test/*",
+    "test-dev": "NODE_ENV=test mocha --watch --recursive test/*",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "dev": "nodemon --delay 1500ms index.js"
   },

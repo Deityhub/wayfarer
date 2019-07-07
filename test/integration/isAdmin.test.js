@@ -1,11 +1,10 @@
 /* eslint-disable camelcase */
 require('dotenv').config();
-const bcrypt = require('bcrypt');
-const config = require('config');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const isAdmin = require('../../middlewares/isAdmin');
 const pool = require('../../db');
+const hashPassword = require('../../utils/hashPassword');
 
 chai.use(chaiHttp);
 const { expect } = chai;
@@ -36,8 +35,7 @@ describe('Authorization for Admin Role', () => {
         'CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY, email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
       );
 
-      const salt = await bcrypt.genSalt(Number(config.get('saltRound')));
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = await hashPassword(password);
       await client.query({
         text: 'INSERT INTO users(email, first_name, last_name, password) VALUES($1, $2, $3, $4)',
         values: [email, first_name, last_name, hashedPassword],

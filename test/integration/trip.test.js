@@ -1,11 +1,10 @@
 /* eslint-disable camelcase */
 require('dotenv').config();
-const config = require('config');
-const bcrypt = require('bcrypt');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const { createTrip, getAllTrips } = require('../../controllers/trip.controller');
 const pool = require('../../db');
+const hashPassword = require('../../utils/hashPassword');
 
 const { expect } = chai;
 chai.use(chaiHttp);
@@ -30,8 +29,7 @@ describe('Trip Routes', () => {
       'CREATE TABLE IF NOT EXISTS users(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
     );
 
-    const salt = await bcrypt.genSalt(Number(config.get('saltRound')));
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await hashPassword(password);
     await client.query({
       text:
         'INSERT INTO users(email, first_name, last_name, password, is_admin) VALUES($1, $2, $3, $4, $5) RETURNING id, is_admin, email',
@@ -103,6 +101,27 @@ describe('Trip Routes', () => {
           expect(res).to.have.status(201);
           expect(res.body.data.origin).to.eql(trip.origin);
           expect(res.body.data.destination).to.eql(trip.destination);
+          done();
+        });
+    });
+
+    it('should throw error with status code 400 if any of the fields are empty', (done) => {
+      const trip = {
+        bus_id: bus.rows[0].id,
+        origin: '',
+        destination: 'Enugu',
+        trip_date: '2019-08-2',
+        fare: 780,
+      };
+
+      chai
+        .request(server)
+        .post('/api/v1/trips')
+        .send(trip)
+        .set('Authorization', `Bearer ${user.token}`)
+        .end((err, res) => {
+          expect(res).to.have.status(400);
+          expect(res.body.status).to.eql('error');
           done();
         });
     });
