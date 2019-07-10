@@ -1,0 +1,56 @@
+paths:
+  /api/v1/auth/signup/:
+    post:
+      tags:
+        - User
+      summary: creates a new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/signUp"
+      responses:
+        "201":
+          description: User creation successful. An object with user details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/authResponse"
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "500":
+          $ref: "#/components/responses/serverError"
+  /api/v1/auth/signin:
+    post:
+      tags:
+        - User
+      summary: sign in user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: abc@abc.com
+                password:
+                  type: string
+                  example: secretpassword
+                required:
+                  - email
+                  - password
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/authResponse"
+        "401":
+          $ref: "#/components/responses/authError"
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "500":
+          $ref: "#/components/responses/serverError"

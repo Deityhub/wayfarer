@@ -11,7 +11,7 @@
     "test": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive test/*",
     "test-dev": "NODE_ENV=test mocha --watch --recursive test/*",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "dev": "nodemon --delay 1500ms index.js"
+    "dev": "nodemon index.js"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -31,6 +31,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "pg": "^7.11.0"
+    "pg": "^7.11.0",
+    "swagger-jsdoc": "^3.3.0",
+    "swagger-ui-express": "^4.0.7"
   }
 }

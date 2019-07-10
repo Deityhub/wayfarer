@@ -1,0 +1,150 @@
+components:
+  securitySchemes:
+    bearerAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    badRequest:
+      description: Bad request
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+    authError:
+      description: Authentication error
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+    forbidden:
+      description: Forbidden
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+    serverError:
+      description: Internal server error
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+  schemas:
+    signUp:
+      type: object
+      properties:
+        email:
+          type: string
+          example: abc@abc.com
+        password:
+          type: string
+          example: secretpassword
+        first_name:
+          type: string
+          example: Chizoba
+        last_name:
+          type: string
+          example: Ojini
+      required:
+        - email
+        - password
+        - first_name
+        - last_name
+    authResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          properties:
+            user_id:
+              type: string
+              format: uuid
+            token:
+              type: string
+            is_admin:
+              type: boolean
+              example: true
+    errorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: error
+        error:
+          type: string
+    busCreated:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            number_plate:
+              type: string
+              example: DGF-23
+            capacity:
+              type: integer
+              example: 12
+    tripCreated:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          type: object
+          properties:
+            trip_id:
+              type: id
+              format: uuid
+            bus_id:
+              type: id
+              format: uuid
+            origin:
+              type: string
+            destination:
+              type: string
+            trip_date:
+              type: string
+              format: date
+            fare:
+              type: number
+              format: float
+            status:
+              type: string
+    trips:
+      type: object
+      properties:
+        status:
+          type: string
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              trip_id:
+                type: string
+                format: uuid
+              bus_id:
+                type: string
+                format: uuid
+              origin:
+                type: string
+              destination:
+                type: string
+              trip_date:
+                type: string
+                format: date
+              fare:
+                type: number
+                format: float
+              status:
+                type: string
