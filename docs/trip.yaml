@@ -1,0 +1,67 @@
+paths:
+  /api/v1/trips/:
+    post:
+      tags:
+        - Trip
+      summary: creates a trip
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bus_id:
+                  type: string
+                  format: uuid
+                origin:
+                  type: string
+                destination:
+                  type: string
+                trip_date:
+                  type: string
+                  format: date
+                fare:
+                  type: integer
+                  format: float
+              required:
+                - bus_id
+                - origin
+                - destination
+                - trip_date
+                - fare
+      responses:
+        "201":
+          description: Trip creation success
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/tripCreated"
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "500":
+          $ref: "#/components/responses/serverError"
+    get:
+      tags:
+        - Trips
+      summary: User and admin can get/see all trips
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successfully fetched trips
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/trips"
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "500":
+          $ref: "#/components/responses/serverError"

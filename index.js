@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-console */
+require('dotenv').config();
 const config = require('config');
 const express = require('express');
 const cors = require('cors');
@@ -7,7 +8,7 @@ const routes = require('./routes');
 
 const app = express();
 // eslint-disable-next-line global-require
-if (app.get('env' === 'development') || app.get('env' === 'test')) require('dotenv').config();
+if (app.get('env') === 'development' || app.get('env') === 'test') require('dotenv').config();
 
 app.use(cors());
 app.use(express.json());

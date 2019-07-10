@@ -1,0 +1,42 @@
+paths:
+  /api/v1/bus/:
+    post:
+      tags:
+        - Bus
+      summary: creates a bus
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                number_plate:
+                  type: string
+                manufacturer:
+                  type: string
+                model:
+                  type: string
+                year:
+                  type: string
+                capacity:
+                  type: integer
+              required:
+                - number_plate
+                - capacity
+      responses:
+        "201":
+          description: Creation successful
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/busCreated"
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "500":
+          $ref: "#/components/responses/serverError"
