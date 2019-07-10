@@ -1,6 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-console */
-require('dotenv').config();
 const config = require('config');
 const express = require('express');
 const cors = require('cors');
