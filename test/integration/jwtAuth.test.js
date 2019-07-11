@@ -1,5 +1,4 @@
 /* eslint-disable no-unused-expressions */
-/* eslint-disable camelcase */
 require('dotenv').config();
 const chai = require('chai');
 const chaiHttp = require('chai-http');
