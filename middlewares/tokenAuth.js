@@ -18,7 +18,7 @@ module.exports = (req, res, next) => {
       return next(new Error('Invalid token provided'));
     }
 
-    req.is_admin = decoded.is_admin;
+    req.user = decoded;
   });
 
   return next();

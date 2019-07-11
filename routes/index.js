@@ -3,6 +3,7 @@ const swaggerUi = require('swagger-ui-express');
 
 const user = require('./user.route');
 const bus = require('./bus.route');
+const booking = require('./booking.route');
 const trip = require('./trip.route');
 
 // Swagger definition
@@ -40,5 +41,6 @@ module.exports = (app) => {
   app.use('/api/v1', user);
   app.use('/api/v1', bus);
   app.use('/api/v1', trip);
+  app.use('/api/v1', booking);
   app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 };

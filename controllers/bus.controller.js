@@ -1,5 +1,4 @@
 /* eslint-disable consistent-return */
-/* eslint-disable camelcase */
 /* eslint-disable no-console */
 const pool = require('../db');
 const isEmpty = require('../utils/isEmpty');
