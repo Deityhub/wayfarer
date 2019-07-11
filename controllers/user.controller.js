@@ -1,5 +1,4 @@
 /* eslint-disable consistent-return */
-/* eslint-disable camelcase */
 /* eslint-disable no-console */
 const bcrypt = require('bcrypt');
 const pool = require('../db');
@@ -46,7 +45,7 @@ const signUp = async (req, res, next) => {
     const { rows } = await client.query(regQuery);
 
     const { id, is_admin } = rows[0];
-    const token = tokenize({ email, is_admin });
+    const token = tokenize({ id, email, is_admin });
 
     res.status(201).send({ status: 'success', data: { user_id: id, is_admin, token } });
   } catch (error) {
@@ -83,7 +82,7 @@ const signIn = async (req, res, next) => {
       return next(new Error('Invalid log in details'));
     }
 
-    const token = tokenize({ email: rows[0].email, is_admin: rows[0].is_admin });
+    const token = tokenize({ id: rows[0].id, email: rows[0].email, is_admin: rows[0].is_admin });
 
     res.status(200).send({
       status: 'success',

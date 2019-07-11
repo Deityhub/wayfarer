@@ -1,7 +1,8 @@
 {
   "extends": "airbnb-base",
   "rules": {
-    "prefer-arrow-callback": "error"
+    "prefer-arrow-callback": "error",
+    "camelcase": 0
   },
   "env": {
     "mocha": true
