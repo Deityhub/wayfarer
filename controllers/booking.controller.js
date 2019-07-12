@@ -28,4 +28,28 @@ const createBooking = async (req, res, next) => {
   }
 };
 
-module.exports = { createBooking };
+const getBookings = async (req, res, next) => {
+  const client = await pool.connect();
+
+  const userBooks = 'SELECT bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id AND users.email = $1)';
+
+  const allBooks = 'SELECT bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id)';
+
+  try {
+    if (req.user.is_admin) {
+      // query to get all bookings
+      const { rows } = await client.query(allBooks);
+      return res.status(200).send({ status: 'success', data: rows });
+    }
+
+    // query to get a bookings for that user
+    const { rows } = await client.query(userBooks, [req.user.email]);
+    res.status(200).send({ status: 'success', data: rows });
+  } catch (error) {
+    next(error);
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { createBooking, getBookings };
