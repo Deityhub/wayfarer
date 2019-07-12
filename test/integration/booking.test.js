@@ -1,7 +1,7 @@
 require('dotenv').config();
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const { createBooking } = require('../../controllers/booking.controller');
+const { createBooking, getBookings } = require('../../controllers/booking.controller');
 const pool = require('../../db');
 const hashPassword = require('../../utils/hashPassword');
 
@@ -9,6 +9,8 @@ chai.use(chaiHttp);
 const { expect } = chai;
 let server;
 let client;
+let user;
+let normalUser;
 
 describe('Bookings Route', () => {
   before('executing booking route test', async () => {
@@ -43,7 +45,6 @@ describe('Bookings Route', () => {
   describe('POST /bookings', () => {
     let bus;
     let trip;
-    let user;
 
     const number_plate = 'HIEHGT4-4';
     const manufacturer = 'Toyota';
@@ -63,7 +64,7 @@ describe('Bookings Route', () => {
     const password = 'superpassword';
     const details = { email, password };
 
-    before(async () => {
+    before('posting to booking', async () => {
       // create a user
       const hashedPassword = await hashPassword(password);
       await client.query({
@@ -86,8 +87,6 @@ describe('Bookings Route', () => {
         values: [bus.rows[0].id, origin, destination, trip_date, fare, status],
       });
     });
-
-    afterEach(() => {});
 
     it('should signin a user', (done) => {
       chai
@@ -123,6 +122,67 @@ describe('Bookings Route', () => {
             'bus_id',
             'email',
           );
+          done();
+        });
+    });
+  });
+
+  describe('GET /bookings', () => {
+    const email = 'testing@test.com';
+    const first_name = 'Ibe';
+    const last_name = 'Nwachukwu';
+    const password = 'secretpasswordlol';
+    const details = { email, password };
+
+    before('getting bookings', async () => {
+      // create a user
+      const hashedPassword = await hashPassword(password);
+      await client.query({
+        text:
+          'INSERT INTO users(email, first_name, last_name, password, is_admin) VALUES($1, $2, $3, $4, $5) RETURNING id, is_admin, email',
+        values: [email, first_name, last_name, hashedPassword, false],
+      });
+    });
+
+    it('should signin a user', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/auth/signin')
+        .send(details)
+        .end((err, res) => {
+          normalUser = res.body.data;
+          expect(res).to.have.status(200);
+          expect(res.body.data.token).to.be.a('string');
+          done();
+        });
+    });
+
+    it('should be a function', () => {
+      expect(getBookings).to.be.a('function');
+    });
+
+    it('should see all bookings if user is an admin', (done) => {
+      chai
+        .request(server)
+        .get('/api/v1/bookings')
+        .set('Authorization', `Bearer ${user.token}`)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.status).to.eql('success');
+          expect(res.body.data).to.be.an('array');
+          done();
+        });
+    });
+
+    it('should see all bookings if user is not an admin', (done) => {
+      chai
+        .request(server)
+        .get('/api/v1/bookings')
+        .set('Authorization', `Bearer ${normalUser.token}`)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.status).to.eql('success');
+          expect(res.body.data).to.be.an('array');
           done();
         });
     });
