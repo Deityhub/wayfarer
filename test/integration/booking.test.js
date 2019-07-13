@@ -79,10 +79,11 @@ describe('Bookings Route', () => {
     server.close();
   });
 
-  it('should be a function', () => {
+  it('should be a function', (done) => {
     expect(getBookings).to.be.a('function');
     expect(createBooking).to.be.a('function');
     expect(deleteBooking).to.be.a('function');
+    done();
   });
 
   describe('POST /bookings', () => {
@@ -169,7 +170,7 @@ describe('Bookings Route', () => {
         .request(server)
         .post('/api/v1/bookings')
         .send({ trip_id: trip.rows[0].id, user_id: admin.user_id, seat_number: 3 })
-        .set('Authorization', `Bearer ${admin.token}`)
+        .set('token', admin.token)
         .end((err, res) => {
           expect(res).to.have.status(201);
           expect(res.body.data).to.include.all.keys(
@@ -190,7 +191,7 @@ describe('Bookings Route', () => {
         .request(server)
         .post('/api/v1/bookings')
         .send({ trip_id: trip.rows[1].id, user_id: user.user_id, seat_number: 15 })
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           booking = res.body.data;
           expect(res).to.have.status(201);
@@ -206,6 +207,32 @@ describe('Bookings Route', () => {
           done();
         });
     });
+
+    it('should return status code 400 and error, when trip_id or user_id is empty', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/bookings')
+        .send({ trip_id: '', user_id: '', seat_number: 15 })
+        .set('token', user.token)
+        .end((err, res) => {
+          expect(res).to.have.status(400);
+          expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
+
+    it('should return status code 500 for internal server error', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/bookings')
+        .send({ trip_id: 45, user_id: 'fg', seat_number: 15 })
+        .set('token', user.token)
+        .end((err, res) => {
+          expect(res).to.have.status(500);
+          expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
   });
 
   describe('GET /bookings', () => {
@@ -213,7 +240,7 @@ describe('Bookings Route', () => {
       chai
         .request(server)
         .get('/api/v1/bookings')
-        .set('Authorization', `Bearer ${admin.token}`)
+        .set('token', admin.token)
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body.status).to.eql('success');
@@ -225,7 +252,7 @@ describe('Bookings Route', () => {
       chai
         .request(server)
         .get('/api/v1/bookings')
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body.status).to.eql('success');
@@ -241,7 +268,7 @@ describe('Bookings Route', () => {
         .request(server)
         .patch(`/api/v1/bookings/${booking.booking_id}`)
         .send({ seat_number: 199 })
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body.status).to.eql('success');
@@ -255,7 +282,7 @@ describe('Bookings Route', () => {
       chai
         .request(server)
         .patch(`/api/v1/bookings/${uuidv4}`)
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res.body.status).to.eql('error');
           expect(res).to.have.status(404);
@@ -267,7 +294,7 @@ describe('Bookings Route', () => {
       chai
         .request(server)
         .patch('/api/v1/bookings/6765dhgid')
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res.body.status).to.eql('error');
           expect(res).to.have.status(500);
@@ -281,7 +308,7 @@ describe('Bookings Route', () => {
       chai
         .request(server)
         .delete(`/api/v1/bookings/${booking.booking_id}`)
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body.status).to.eql('success');
@@ -293,10 +320,22 @@ describe('Bookings Route', () => {
       chai
         .request(server)
         .delete(`/api/v1/bookings/${booking.booking_id}`)
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(410);
           expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
+
+    it('should return status code 500 for internal server error', (done) => {
+      chai
+        .request(server)
+        .delete('/api/v1/bookings/hgiehdg')
+        .set('token', user.token)
+        .end((err, res) => {
+          expect(res.body.status).to.eql('error');
+          expect(res).to.have.status(500);
           done();
         });
     });

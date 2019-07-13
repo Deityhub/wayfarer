@@ -17,7 +17,7 @@ const createTrip = async (req, res, next) => {
     || isEmpty(fare)
   ) {
     req.status = 400;
-    return next(new Error('All the fields are required'));
+    return next(new Error('All the fields are required except status field'));
   }
 
   status = isEmpty(status) ? 'active' : status;

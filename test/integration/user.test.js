@@ -4,7 +4,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 
 const pool = require('../../db');
-const user = require('../../controllers/user.controller');
+const { signUp, signIn } = require('../../controllers/user.controller');
 const hashPassword = require('../../utils/hashPassword');
 
 const { expect } = chai;
@@ -21,6 +21,11 @@ describe('User Routes', () => {
     server.close();
   });
 
+  it('should be a function', (done) => {
+    expect(signUp).to.be.a('function');
+    expect(signIn).to.be.a('function');
+    done();
+  });
   describe('POST /auth/signup', () => {
     let email = 'test@test.com';
     const first_name = 'Michael';
@@ -40,10 +45,6 @@ describe('User Routes', () => {
       client.release();
     });
 
-    it('signup controller must be a function', () => {
-      expect(user.signUp).to.be.a('function');
-    });
-
     it('should return status code 201 and success status, on successful user signup', (done) => {
       chai
         .request(server)
@@ -55,15 +56,13 @@ describe('User Routes', () => {
           password,
         })
         .end((err, res) => {
-          if (err) return;
-
           expect(res).to.have.status(201);
           expect(res.body.status).to.eql('success');
           done();
         });
     });
 
-    it('should return status code 400 and error status, on using invalid email address', (done) => {
+    it('should return status code 500 for cases of internal server error', (done) => {
       chai
         .request(server)
         .post('/api/v1/auth/signup')
@@ -74,9 +73,7 @@ describe('User Routes', () => {
           password,
         })
         .end((err, res) => {
-          if (err) return;
-
-          expect(res).to.have.status(400);
+          expect(res).to.have.status(500);
           expect(res.body.status).to.eql('error');
           done();
         });
@@ -93,8 +90,6 @@ describe('User Routes', () => {
           password,
         })
         .end((err, res) => {
-          if (err) return;
-
           expect(res.body.data.user_id.length).to.be.greaterThan(0);
           expect(res.body.data.user_id).to.be.a('string');
           done();
@@ -112,8 +107,6 @@ describe('User Routes', () => {
           password,
         })
         .end((err, res) => {
-          if (err) return;
-
           expect(res.body.data.is_admin).to.be.a('boolean');
           done();
         });
@@ -132,8 +125,6 @@ describe('User Routes', () => {
           password,
         })
         .end((err, res) => {
-          if (err) return;
-
           expect(res).to.have.status(400);
           expect(res.body.status).to.eql('error');
           expect(res.body.error).not.to.be.empty;
@@ -152,7 +143,7 @@ describe('User Routes', () => {
     before(async () => {
       client = await pool.connect();
       await client.query(
-        'CREATE TABLE IF NOT EXISTS users(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
+        'CREATE TABLE IF NOT EXISTS users(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
       );
 
       const hashedPassword = await hashPassword(password);
@@ -178,8 +169,6 @@ describe('User Routes', () => {
           password,
         })
         .end((err, res) => {
-          if (err) return;
-
           expect(res).to.have.status(400);
           expect(res.body.status).to.eql('error');
           done();
@@ -198,7 +187,7 @@ describe('User Routes', () => {
     before(async () => {
       client = await pool.connect();
       await client.query(
-        'CREATE TABLE IF NOT EXISTS users(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
+        'CREATE TABLE IF NOT EXISTS users(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
       );
 
       const hashedPassword = await hashPassword(password);
@@ -213,18 +202,12 @@ describe('User Routes', () => {
       client.release();
     });
 
-    it('should be a function', () => {
-      expect(user.signIn).to.be.a('function');
-    });
-
     it('should return status code 200, on successful signin', (done) => {
       chai
         .request(server)
         .post('/api/v1/auth/signin')
         .send(details)
         .end((err, res) => {
-          if (err) return;
-
           expect(res).to.have.status(200);
           done();
         });
@@ -236,8 +219,6 @@ describe('User Routes', () => {
         .post('/api/v1/auth/signin')
         .send({ email: 'abc@test.com', password })
         .end((err, res) => {
-          if (err) return;
-
           expect(res).to.have.status(401);
           expect(res.body.status).to.eql('error');
           done();
@@ -250,8 +231,6 @@ describe('User Routes', () => {
         .post('/api/v1/auth/signin')
         .send({ email, password: 'testingpassword' })
         .end((err, res) => {
-          if (err) return;
-
           expect(res).to.have.status(401);
           expect(res.body.status).to.eql('error');
           done();
@@ -288,6 +267,18 @@ describe('User Routes', () => {
         .send(details)
         .end((err, res) => {
           expect(res).to.have.status(400);
+          expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
+
+    it('should return status code 500 for internal server error', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/auth/signin')
+        .send({ email: 'bbc', password })
+        .end((err, res) => {
+          expect(res).to.have.status(500);
           expect(res.body.status).to.eql('error');
           done();
         });
