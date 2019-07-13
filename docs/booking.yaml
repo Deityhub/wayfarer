@@ -1,5 +1,5 @@
 paths:
-  /api/v1/bookings:
+  /bookings:
     post:
       tags:
         - Booking
@@ -106,7 +106,7 @@ paths:
           $ref: "#/components/responses/forbidden"
         "500":
           $ref: "#/components/responses/serverError"
-  /api/v1/bookings/:bookingId:
+  /bookings/:bookingId:
     delete:
       tags:
         - Booking

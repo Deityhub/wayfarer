@@ -16,7 +16,7 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'http://wayfarer-test.herokuapp.com',
+      url: 'https://wayfarer-test.herokuapp.com',
       description: 'Online hosted server',
     },
     {
@@ -24,7 +24,7 @@ const swaggerDefinition = {
       description: 'Locally hosted server',
     },
   ],
-  basePath: '/api/v1', // the basepath of your endpoint
+  basePath: '/', // the basepath of your endpoint
 };
 
 // options for the swagger docs
@@ -38,9 +38,9 @@ const options = {
 const swaggerSpec = swaggerJSDoc(options);
 
 module.exports = (app) => {
-  app.use('/api/v1', user);
-  app.use('/api/v1', bus);
-  app.use('/api/v1', trip);
-  app.use('/api/v1', booking);
-  app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use(user);
+  app.use(bus);
+  app.use(trip);
+  app.use(booking);
+  app.use(swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 };
