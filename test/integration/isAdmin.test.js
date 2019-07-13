@@ -68,7 +68,7 @@ describe('Authorization for Admin Role', () => {
       chai
         .request(server)
         .post('/api/v1/bus')
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(403);
           done();

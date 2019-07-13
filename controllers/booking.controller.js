@@ -4,13 +4,18 @@ const isEmpty = require('../utils/isEmpty');
 const createBooking = async (req, res, next) => {
   const { trip_id, user_id, seat_number } = req.body;
 
+  if (isEmpty(trip_id) || isEmpty(user_id)) {
+    req.status = 400;
+    return next(new Error('user id or trip id not provided'));
+  }
+
   const bookQuery = {
     text:
       'INSERT INTO bookings(trip_id, user_id, seat_number) VALUES($1, $2, $3) RETURNING id, trip_id, user_id, seat_number, created_on',
     values: [trip_id, user_id, seat_number],
   };
 
-  const bookCompleteQuery = 'SELECT bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email, users.id userId FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id AND users.id = $1)';
+  const bookCompleteQuery = 'SELECT bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id AND users.id = $1)';
 
   const client = await pool.connect();
   try {
@@ -32,7 +37,7 @@ const createBooking = async (req, res, next) => {
 const getBookings = async (req, res, next) => {
   const client = await pool.connect();
 
-  const userBooks = 'SELECT bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email, users.id usersId FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id AND users.email = $1)';
+  const userBooks = 'SELECT bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id AND users.email = $1)';
 
   const allBooks = 'SELECT bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id)';
 
@@ -60,7 +65,8 @@ const deleteBooking = async (req, res, next) => {
   try {
     const { rows } = await client.query('SELECT * FROM bookings WHERE id = $1', [bookingId]);
     if (isEmpty(rows)) {
-      return res.status(410).send({ status: 'error', error: 'Booking no longer exists' });
+      req.status = 410;
+      return next(new Error('Booking no longer exists'));
     }
     await client.query('DELETE FROM bookings WHERE id = $1', [bookingId]);
 

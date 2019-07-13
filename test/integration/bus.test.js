@@ -88,7 +88,7 @@ describe('Bus Routes', () => {
       chai
         .request(server)
         .post('/api/v1/bus')
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .send(busData)
         .end((err, res) => {
           expect(res).to.have.status(201);
@@ -107,7 +107,7 @@ describe('Bus Routes', () => {
       chai
         .request(server)
         .post('/api/v1/bus')
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .send(data)
         .end((err, res) => {
           expect(res).to.have.status(400);
@@ -116,12 +116,12 @@ describe('Bus Routes', () => {
         });
     });
 
-    it.skip("should throw error and status code 500 when it's internal server error", (done) => {
+    it("should throw error and status code 500 when it's internal server error", (done) => {
       chai
         .request(server)
         .post('/api/v1/bus')
-        .set('Authorization', `Bearer ${user.token}`)
-        .send(busData)
+        .set('token', user.token)
+        .send({ number_plate: 454, capacity: 'hello' })
         .end((err, res) => {
           expect(res).to.have.status(500);
           expect(res.body.status).to.eql('error');

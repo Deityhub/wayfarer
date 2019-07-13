@@ -29,7 +29,7 @@ describe('Token Authentication Middleware', () => {
       chai
         .request(server)
         .post('/api/v1/bus')
-        .set('Authorization', 'Bearer ghiehtislfjjfi3546785')
+        .set('token', 'ghiehtislfjjfi3546785')
         .end((err, res) => {
           expect(res).to.have.status(403);
           done();

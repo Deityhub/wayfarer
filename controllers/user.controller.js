@@ -11,16 +11,11 @@ const signUp = async (req, res, next) => {
   const {
     email, first_name, last_name, password,
   } = req.body;
-  const userTable = 'CREATE TABLE IF NOT EXISTS users(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)';
+  const userTable = 'CREATE TABLE IF NOT EXISTS users(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)';
 
   if (isEmpty(email) || isEmpty(first_name) || isEmpty(last_name) || isEmpty(password)) {
     req.status = 400;
     return next(new Error('All fields are required for sign up'));
-  }
-
-  if (!isValidEmail(email)) {
-    req.status = 400;
-    return next(new Error('Provide a valid email address'));
   }
 
   const hashedPassword = await hashPassword(password);
@@ -34,6 +29,10 @@ const signUp = async (req, res, next) => {
   const client = await pool.connect();
 
   try {
+    if (!isValidEmail(email)) {
+      throw new Error('Provide a valid email address');
+    }
+
     await client.query(userTable);
 
     const users = await client.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -70,6 +69,10 @@ const signIn = async (req, res, next) => {
   const client = await pool.connect();
 
   try {
+    if (!isValidEmail(email)) {
+      throw new Error('Provide a valid email address');
+    }
+
     const { rows } = await client.query(userQuery);
     if (isEmpty(rows)) {
       req.status = 401;

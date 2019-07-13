@@ -58,6 +58,12 @@ describe('Trip Routes', () => {
     client.release();
   });
 
+  it('should be a function', () => {
+    expect(createTrip).to.be.a('function');
+    expect(getAllTrips).to.be.a('function');
+    expect(cancelTrip).to.be.a('function');
+  });
+
   describe('POST /trips', () => {
     const number_plate = 'HIEH034-4';
     const manufacturer = 'Toyota';
@@ -105,10 +111,6 @@ describe('Trip Routes', () => {
         });
     });
 
-    it('should be a function', () => {
-      expect(createTrip).to.be.a('function');
-    });
-
     it('should create a trip successfully by an admin', (done) => {
       const trip = {
         bus_id: bus.rows[0].id,
@@ -122,7 +124,7 @@ describe('Trip Routes', () => {
         .request(server)
         .post('/api/v1/trips')
         .send(trip)
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           availableTrip = res.body.data;
           expect(res).to.have.status(201);
@@ -145,7 +147,7 @@ describe('Trip Routes', () => {
         .request(server)
         .post('/api/v1/trips')
         .send(trip)
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(400);
           expect(res.body.status).to.eql('error');
@@ -166,9 +168,31 @@ describe('Trip Routes', () => {
         .request(server)
         .post('/api/v1/trips')
         .send(trip)
-        .set('Authorization', `Bearer ${normalUser.token}`)
+        .set('token', normalUser.token)
         .end((err, res) => {
           expect(res).to.have.status(403);
+          expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
+
+    it('should return status code 500 for internal server error', (done) => {
+      const trip = {
+        bus_id: '567gfh',
+        origin: 'Onitsha',
+        destination: 'Enugu',
+        trip_date: '2019-08-2',
+        fare: 780,
+        status: 57,
+      };
+
+      chai
+        .request(server)
+        .post('/api/v1/trips')
+        .send(trip)
+        .set('token', user.token)
+        .end((err, res) => {
+          expect(res).to.have.status(500);
           expect(res.body.status).to.eql('error');
           done();
         });
@@ -187,7 +211,7 @@ describe('Trip Routes', () => {
         .request(server)
         .post('/api/v1/trips')
         .send(trip)
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(500);
           done();
@@ -196,15 +220,11 @@ describe('Trip Routes', () => {
   });
 
   describe('GET /trips', () => {
-    it('should be a function', () => {
-      expect(getAllTrips).to.be.a('function');
-    });
-
     it('should see all the available trips', (done) => {
       chai
         .request(server)
         .get('/api/v1/trips')
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body.status).to.eql('success');
@@ -217,7 +237,7 @@ describe('Trip Routes', () => {
         chai
           .request(server)
           .get('/api/v1/trips?destination=Enugu')
-          .set('Authorization', `Bearer ${user.token}`)
+          .set('token', user.token)
           .end((err, res) => {
             expect(res.body.status).to.eql('success');
             expect(res).to.have.status(200);
@@ -231,7 +251,7 @@ describe('Trip Routes', () => {
         chai
           .request(server)
           .get('/api/v1/trips?destination=Onitsha')
-          .set('Authorization', `Bearer ${user.token}`)
+          .set('token', user.token)
           .end((err, res) => {
             expect(res.body.status).to.eql('success');
             expect(res).to.have.status(200);
@@ -242,15 +262,11 @@ describe('Trip Routes', () => {
   });
 
   describe('PATCH /trips/:tripId', () => {
-    it('should be a function', () => {
-      expect(cancelTrip).to.be.a('function');
-    });
-
     it('should cancel a trip', (done) => {
       chai
         .request(server)
         .patch(`/api/v1/trips/${availableTrip.trip_id}`)
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(200);
           done();
@@ -263,7 +279,7 @@ describe('Trip Routes', () => {
       chai
         .request(server)
         .patch(`/api/v1/trips/${uuidv4}`)
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res.body.status).to.eql('error');
           expect(res).to.have.status(404);
@@ -275,7 +291,7 @@ describe('Trip Routes', () => {
       chai
         .request(server)
         .patch('/api/v1/trips/6765dhgid')
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('token', user.token)
         .end((err, res) => {
           expect(res.body.status).to.eql('error');
           expect(res).to.have.status(500);
