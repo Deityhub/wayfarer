@@ -60,10 +60,18 @@ const createTrip = async (req, res, next) => {
 const getAllTrips = async (req, res, next) => {
   const tripQuery = 'SELECT * FROM trips';
   const client = await pool.connect();
+  const { destination, origin } = req.query;
 
   try {
-    const { rows } = await client.query(tripQuery);
+    if (!isEmpty(destination) || !isEmpty(origin)) {
+      const { rows } = await client.query(
+        'SELECT * FROM trips WHERE destination = $1 OR origin = $2',
+        [destination, origin],
+      );
+      return res.status(200).send({ status: 'success', data: rows });
+    }
 
+    const { rows } = await client.query(tripQuery);
     res.status(200).send({ status: 'success', data: rows });
   } catch (error) {
     next(error);

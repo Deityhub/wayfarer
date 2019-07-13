@@ -211,6 +211,34 @@ describe('Trip Routes', () => {
           done();
         });
     });
+
+    describe('GET /trips?destination=', () => {
+      it('should return all trips based on the destination', (done) => {
+        chai
+          .request(server)
+          .get('/api/v1/trips?destination=Enugu')
+          .set('Authorization', `Bearer ${user.token}`)
+          .end((err, res) => {
+            expect(res.body.status).to.eql('success');
+            expect(res).to.have.status(200);
+            done();
+          });
+      });
+    });
+
+    describe('GET /trips?origin=', () => {
+      it('should return all trips based on the origin', (done) => {
+        chai
+          .request(server)
+          .get('/api/v1/trips?destination=Onitsha')
+          .set('Authorization', `Bearer ${user.token}`)
+          .end((err, res) => {
+            expect(res.body.status).to.eql('success');
+            expect(res).to.have.status(200);
+            done();
+          });
+      });
+    });
   });
 
   describe('PATCH /trips/:tripId', () => {
