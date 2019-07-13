@@ -4,8 +4,8 @@ paths:
       tags:
         - Bus
       summary: creates a bus
-      security:
-        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/token"
       requestBody:
         content:
           application/json:
@@ -31,7 +31,23 @@ paths:
           content:
             application/json; charset=utf-8:
               schema:
-                $ref: "#/components/schemas/busCreated"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      number_plate:
+                        type: string
+                        example: DGF-23
+                      capacity:
+                        type: integer
+                        example: 12
         "400":
           $ref: "#/components/responses/badRequest"
         "401":

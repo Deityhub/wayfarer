@@ -1,12 +1,13 @@
 components:
-  securitySchemes:
-    bearerAuth: # arbitrary name for the security scheme
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
   responses:
     badRequest:
       description: Bad request
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: "#/components/schemas/errorResponse"
+    notFound: # handle 410 and 404 status code
+      description: Not found
       content:
         application/json; charset=utf-8:
           schema:
@@ -30,26 +31,6 @@ components:
           schema:
             $ref: "#/components/schemas/errorResponse"
   schemas:
-    signUp:
-      type: object
-      properties:
-        email:
-          type: string
-          example: abc@abc.com
-        password:
-          type: string
-          example: secretpassword
-        first_name:
-          type: string
-          example: Chizoba
-        last_name:
-          type: string
-          example: Ojini
-      required:
-        - email
-        - password
-        - first_name
-        - last_name
     authResponse:
       type: object
       properties:
@@ -75,51 +56,6 @@ components:
           example: error
         error:
           type: string
-    busCreated:
-      type: object
-      properties:
-        status:
-          type: string
-          example: success
-        data:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            number_plate:
-              type: string
-              example: DGF-23
-            capacity:
-              type: integer
-              example: 12
-    tripCreated:
-      type: object
-      properties:
-        status:
-          type: string
-          example: success
-        data:
-          type: object
-          properties:
-            trip_id:
-              type: id
-              format: uuid
-            bus_id:
-              type: id
-              format: uuid
-            origin:
-              type: string
-            destination:
-              type: string
-            trip_date:
-              type: string
-              format: date
-            fare:
-              type: number
-              format: float
-            status:
-              type: string
     trips:
       type: object
       properties:
@@ -148,3 +84,18 @@ components:
                 format: float
               status:
                 type: string
+  parameters:
+    token:
+      in: header
+      name: token
+      schema:
+        type: string
+      required: true
+      description: token for authorization
+    tripId:
+      in: path
+      name: bookingId
+      description: The id of the booking you want to delete
+      schema:
+        type: string
+      required: true

@@ -1,0 +1,167 @@
+paths:
+  /api/v1/bookings:
+    post:
+      tags:
+        - Booking
+      parameters:
+        - $ref: "#/components/parameters/token"
+      requestBody:
+        description: trip id is required in request body
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trip_id:
+                  type: string
+                  format: uuid
+                seat_number:
+                  type: number
+              required:
+                - trip_id
+      responses:
+        "201":
+          description: Creation successful
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      booking_id:
+                        type: string
+                        format: uuid
+                      trip_id:
+                        type: string
+                        format: uuid
+                      user_id:
+                        type: string
+                        format: uuid
+                      trip_date:
+                        type: string
+                        format: date
+                      seat_number:
+                        type: number
+                      bus_id:
+                        type: string
+                        format: uuid
+                      email:
+                        type: string
+                        format: email
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "500":
+          $ref: "#/components/responses/serverError"
+    get:
+      tags:
+        - Booking
+      parameters:
+        - $ref: "#/components/parameters/token"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        booking_id:
+                          type: string
+                          format: uuid
+                        trip_id:
+                          type: string
+                          format: uuid
+                        user_id:
+                          type: string
+                          format: uuid
+                        trip_date:
+                          type: string
+                          format: date
+                        seat_number:
+                          type: number
+                        bus_id:
+                          type: string
+                          format: uuid
+                        email:
+                          type: string
+                          format: email
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "500":
+          $ref: "#/components/responses/serverError"
+  /api/v1/bookings/:bookingId:
+    delete:
+      tags:
+        - Booking
+      parameters:
+        - $ref: "#/components/parameters/token"
+        - $ref: "#/components/parameters/tripId"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "410":
+          $ref: "#/components/responses/notFound"
+        "500":
+          $ref: "#/components/responses/serverError"                
+    patch:
+      tags:
+        - Booking
+      parameters:
+        - $ref: "#/components/parameters/token"
+        - $ref: "#/components/parameters/tripId"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "500":
+          $ref: "#/components/responses/serverError" 

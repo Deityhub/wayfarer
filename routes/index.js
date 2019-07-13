@@ -20,7 +20,7 @@ const swaggerDefinition = {
       description: 'Online hosted server',
     },
     {
-      url: 'http://localhost:3000',
+      url: 'http://localhost:4000',
       description: 'Locally hosted server',
     },
   ],

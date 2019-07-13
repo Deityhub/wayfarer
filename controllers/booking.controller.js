@@ -2,9 +2,10 @@ const pool = require('../db');
 const isEmpty = require('../utils/isEmpty');
 
 const createBooking = async (req, res, next) => {
-  const { trip_id, user_id, seat_number } = req.body;
+  const { trip_id, seat_number } = req.body;
+  const { id } = req.user;
 
-  if (isEmpty(trip_id) || isEmpty(user_id)) {
+  if (isEmpty(trip_id)) {
     req.status = 400;
     return next(new Error('user id or trip id not provided'));
   }
@@ -12,7 +13,7 @@ const createBooking = async (req, res, next) => {
   const bookQuery = {
     text:
       'INSERT INTO bookings(trip_id, user_id, seat_number) VALUES($1, $2, $3) RETURNING id, trip_id, user_id, seat_number, created_on',
-    values: [trip_id, user_id, seat_number],
+    values: [trip_id, id, seat_number],
   };
 
   const bookCompleteQuery = 'SELECT bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id AND users.id = $1)';
@@ -25,7 +26,7 @@ const createBooking = async (req, res, next) => {
 
     await client.query(bookQuery);
 
-    const { rows } = await client.query(bookCompleteQuery, [user_id]);
+    const { rows } = await client.query(bookCompleteQuery, [id]);
     res.status(201).send({ status: 'success', data: { ...rows[0] } });
   } catch (error) {
     next(error);
