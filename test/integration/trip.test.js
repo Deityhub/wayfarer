@@ -1,7 +1,7 @@
 require('dotenv').config();
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const { createTrip, getAllTrips } = require('../../controllers/trip.controller');
+const { createTrip, getAllTrips, cancelTrip } = require('../../controllers/trip.controller');
 const pool = require('../../db');
 const hashPassword = require('../../utils/hashPassword');
 
@@ -11,12 +11,15 @@ let server;
 let client;
 
 describe('Trip Routes', () => {
-  const email = 'test@test.com';
+  const email = 'admin@test.com';
+  const emailNormal = 'tester@test.com';
   const first_name = 'Michael';
   const last_name = 'Okeke';
   const password = 'superpassword';
   const details = { email, password };
   let user;
+  let normalUser;
+  let availableTrip;
 
   before('testing trip routes', async () => {
     // eslint-disable-next-line global-require
@@ -31,8 +34,19 @@ describe('Trip Routes', () => {
     const hashedPassword = await hashPassword(password);
     await client.query({
       text:
-        'INSERT INTO users(email, first_name, last_name, password, is_admin) VALUES($1, $2, $3, $4, $5) RETURNING id, is_admin, email',
-      values: [email, first_name, last_name, hashedPassword, true],
+        'INSERT INTO users(email, first_name, last_name, password, is_admin) VALUES ($1, $2, $3, $4, $5), ($6, $7, $8, $9, $10) RETURNING id, is_admin, email',
+      values: [
+        email,
+        first_name,
+        last_name,
+        hashedPassword,
+        true,
+        emailNormal,
+        first_name,
+        last_name,
+        hashedPassword,
+        false,
+      ],
     });
   });
 
@@ -44,7 +58,7 @@ describe('Trip Routes', () => {
     client.release();
   });
 
-  describe('POST /api/v1/trip', () => {
+  describe('POST /trips', () => {
     const number_plate = 'HIEH034-4';
     const manufacturer = 'Toyota';
     const model = 'LS343';
@@ -64,14 +78,27 @@ describe('Trip Routes', () => {
         values: [number_plate, manufacturer, model, year, capacity],
       });
     });
-      
-    it('should signin a user', (done) => {
+
+    it('should signin a user(admin)', (done) => {
       chai
         .request(server)
         .post('/api/v1/auth/signin')
         .send(details)
         .end((err, res) => {
           user = res.body.data;
+          expect(res).to.have.status(200);
+          expect(res.body.data.token).to.be.a('string');
+          done();
+        });
+    });
+
+    it('should signin a user(not an admin)', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/auth/signin')
+        .send({ email: emailNormal, password })
+        .end((err, res) => {
+          normalUser = res.body.data;
           expect(res).to.have.status(200);
           expect(res.body.data.token).to.be.a('string');
           done();
@@ -97,6 +124,7 @@ describe('Trip Routes', () => {
         .send(trip)
         .set('Authorization', `Bearer ${user.token}`)
         .end((err, res) => {
+          availableTrip = res.body.data;
           expect(res).to.have.status(201);
           expect(res.body.data.origin).to.eql(trip.origin);
           expect(res.body.data.destination).to.eql(trip.destination);
@@ -125,7 +153,7 @@ describe('Trip Routes', () => {
         });
     });
 
-    it.skip('should not create a trip if user is not an admin', (done) => {
+    it('should not create a trip if user is not an admin', (done) => {
       const trip = {
         bus_id: bus.rows[0].id,
         origin: 'Onitsha',
@@ -138,7 +166,7 @@ describe('Trip Routes', () => {
         .request(server)
         .post('/api/v1/trips')
         .send(trip)
-        .set('Authorization', `Bearer ${user.token}`)
+        .set('Authorization', `Bearer ${normalUser.token}`)
         .end((err, res) => {
           expect(res).to.have.status(403);
           expect(res.body.status).to.eql('error');
@@ -167,7 +195,7 @@ describe('Trip Routes', () => {
     });
   });
 
-  describe('GET /api/v1/trips', () => {
+  describe('GET /trips', () => {
     it('should be a function', () => {
       expect(getAllTrips).to.be.a('function');
     });
@@ -180,6 +208,49 @@ describe('Trip Routes', () => {
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body.status).to.eql('success');
+          done();
+        });
+    });
+  });
+
+  describe('PATCH /trips/:tripId', () => {
+    it('should be a function', () => {
+      expect(cancelTrip).to.be.a('function');
+    });
+
+    it('should cancel a trip', (done) => {
+      chai
+        .request(server)
+        .patch(`/api/v1/trips/${availableTrip.trip_id}`)
+        .set('Authorization', `Bearer ${user.token}`)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          done();
+        });
+    });
+
+    it('should throw error for a trip not existing', (done) => {
+      // always test this with uuidv4 compliant string
+      const uuidv4 = 'd939fc9c-d53d-4a34-b436-a7d0875ae4fe';
+      chai
+        .request(server)
+        .patch(`/api/v1/trips/${uuidv4}`)
+        .set('Authorization', `Bearer ${user.token}`)
+        .end((err, res) => {
+          expect(res.body.status).to.eql('error');
+          expect(res).to.have.status(404);
+          done();
+        });
+    });
+
+    it('should throw error for an invalid uuid', (done) => {
+      chai
+        .request(server)
+        .patch('/api/v1/trips/6765dhgid')
+        .set('Authorization', `Bearer ${user.token}`)
+        .end((err, res) => {
+          expect(res.body.status).to.eql('error');
+          expect(res).to.have.status(500);
           done();
         });
     });

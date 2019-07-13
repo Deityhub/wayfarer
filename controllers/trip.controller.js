@@ -72,4 +72,24 @@ const getAllTrips = async (req, res, next) => {
   }
 };
 
-module.exports = { createTrip, getAllTrips };
+const cancelTrip = async (req, res, next) => {
+  const { tripId } = req.params;
+  const client = await pool.connect();
+
+  try {
+    const { rows } = await client.query('SELECT * FROM trips WHERE id = $1', [tripId]);
+    if (isEmpty(rows)) {
+      req.status = 404;
+      return next(new Error('Trip not found or does not exist'));
+    }
+    await client.query('UPDATE trips SET status = $1 WHERE id = $2', ['cancelled', tripId]);
+
+    res.status(200).send({ status: 'success', data: { message: 'Trip cancelled successfully' } });
+  } catch (error) {
+    next(error);
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { createTrip, getAllTrips, cancelTrip };
