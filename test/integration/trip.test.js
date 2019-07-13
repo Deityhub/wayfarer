@@ -228,5 +228,31 @@ describe('Trip Routes', () => {
           done();
         });
     });
+
+    it('should throw error for a trip not existing', (done) => {
+      // always test this with uuidv4 compliant string
+      const uuidv4 = 'd939fc9c-d53d-4a34-b436-a7d0875ae4fe';
+      chai
+        .request(server)
+        .patch(`/api/v1/trips/${uuidv4}`)
+        .set('Authorization', `Bearer ${user.token}`)
+        .end((err, res) => {
+          expect(res.body.status).to.eql('error');
+          expect(res).to.have.status(404);
+          done();
+        });
+    });
+
+    it('should throw error for an invalid uuid', (done) => {
+      chai
+        .request(server)
+        .patch('/api/v1/trips/6765dhgid')
+        .set('Authorization', `Bearer ${user.token}`)
+        .end((err, res) => {
+          expect(res.body.status).to.eql('error');
+          expect(res).to.have.status(500);
+          done();
+        });
+    });
   });
 });
