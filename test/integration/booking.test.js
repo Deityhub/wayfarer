@@ -39,15 +39,15 @@ describe('Bookings Route', () => {
 
     // create table for users, buses and trips
     await client.query(
-      'CREATE TABLE IF NOT EXISTS users(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name VARCHAR(40) NOT NULL, last_name VARCHAR(40) NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false)',
+      'CREATE TABLE IF NOT EXISTS users(id UUID UNIQUE DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
     );
 
     await client.query(
-      'CREATE TABLE IF NOT EXISTS buses(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), number_plate VARCHAR(255) UNIQUE NOT NULL, manufacturer VARCHAR, model VARCHAR(40), year VARCHAR, capacity INTEGER NOT NULL)',
+      'CREATE TABLE IF NOT EXISTS buses(id UUID UNIQUE DEFAULT uuid_generate_v4(), number_plate VARCHAR(255) UNIQUE NOT NULL, manufacturer VARCHAR, model VARCHAR(40), year VARCHAR, capacity INTEGER NOT NULL, PRIMARY KEY (id))',
     );
 
     await client.query(
-      'CREATE TABLE IF NOT EXISTS trips(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), bus_id UUID NOT NULL UNIQUE, origin TEXT NOT NULL, destination TEXT NOT NULL, trip_date DATE NOT NULL, fare NUMERIC NOT NULL, status VARCHAR(20), FOREIGN KEY (bus_id) REFERENCES buses(id) ON DELETE CASCADE)',
+      'CREATE TABLE IF NOT EXISTS trips(id UUID UNIQUE DEFAULT uuid_generate_v4(), bus_id UUID NOT NULL UNIQUE, origin TEXT NOT NULL, destination TEXT NOT NULL, trip_date DATE NOT NULL, fare NUMERIC NOT NULL, status VARCHAR(20), PRIMARY KEY (id), FOREIGN KEY (bus_id) REFERENCES buses(id) ON DELETE CASCADE)',
     );
 
     // create a user
@@ -169,7 +169,7 @@ describe('Bookings Route', () => {
       chai
         .request(server)
         .post('/api/v1/bookings')
-        .send({ trip_id: trip.rows[0].id, user_id: admin.user_id, seat_number: 3 })
+        .send({ trip_id: trip.rows[0].id, seat_number: 3 })
         .set('token', admin.token)
         .end((err, res) => {
           expect(res).to.have.status(201);
@@ -190,7 +190,7 @@ describe('Bookings Route', () => {
       chai
         .request(server)
         .post('/api/v1/bookings')
-        .send({ trip_id: trip.rows[1].id, user_id: user.user_id, seat_number: 15 })
+        .send({ trip_id: trip.rows[1].id, seat_number: 15 })
         .set('token', user.token)
         .end((err, res) => {
           booking = res.body.data;
@@ -208,11 +208,11 @@ describe('Bookings Route', () => {
         });
     });
 
-    it('should return status code 400 and error, when trip_id or user_id is empty', (done) => {
+    it('should return status code 400 and error, when trip_id is empty', (done) => {
       chai
         .request(server)
         .post('/api/v1/bookings')
-        .send({ trip_id: '', user_id: '', seat_number: 15 })
+        .send({ trip_id: '', seat_number: 15 })
         .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(400);
