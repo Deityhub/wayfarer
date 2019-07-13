@@ -72,4 +72,32 @@ const deleteBooking = async (req, res, next) => {
   }
 };
 
-module.exports = { createBooking, getBookings, deleteBooking };
+const updateBooking = async (req, res, next) => {
+  const { bookingId } = req.params;
+  const client = await pool.connect();
+
+  try {
+    const { rows } = await client.query('SELECT * FROM bookings WHERE id = $1', [bookingId]);
+    if (isEmpty(rows)) {
+      req.status = 404;
+      return next(new Error('Booking not found or does not exist'));
+    }
+
+    await client.query('UPDATE bookings SET seat_number = $1 WHERE id = $2', [
+      req.body.seat_number,
+      bookingId,
+    ]);
+    res.status(200).send({ status: 'success', data: { message: 'Booking updated successfully' } });
+  } catch (error) {
+    next(error);
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = {
+  createBooking,
+  getBookings,
+  deleteBooking,
+  updateBooking,
+};
