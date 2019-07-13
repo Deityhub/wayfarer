@@ -8,7 +8,25 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/signUp"
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                first_name:
+                  type: string
+                  example: Chizoba
+                last_name:
+                  type: string
+                  example: Ojini
+              required:
+                - email
+                - password
+                - first_name
+                - last_name
       responses:
         "201":
           description: User creation successful. An object with user details
@@ -34,10 +52,10 @@ paths:
               properties:
                 email:
                   type: string
-                  example: abc@abc.com
+                  format: email
                 password:
                   type: string
-                  example: secretpassword
+                  format: password
                 required:
                   - email
                   - password
