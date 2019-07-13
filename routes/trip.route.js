@@ -1,5 +1,5 @@
 const express = require('express');
-const { createTrip, getAllTrips, cancelTrip } = require('../controllers/trip.controller');
+const { createTrip, getAllTrips, cancelTrip, getTrip } = require('../controllers/trip.controller');
 const tokenAuth = require('../middlewares/tokenAuth');
 const isAdmin = require('../middlewares/isAdmin');
 
