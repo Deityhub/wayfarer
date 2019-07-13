@@ -105,6 +105,7 @@ describe('User Routes', () => {
           first_name,
           last_name,
           password,
+          is_admin: true,
         })
         .end((err, res) => {
           expect(res.body.data.is_admin).to.be.a('boolean');

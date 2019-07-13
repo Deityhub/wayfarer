@@ -19,11 +19,11 @@ const signUp = async (req, res, next) => {
   }
 
   const hashedPassword = await hashPassword(password);
-
+  const admin = req.body.is_admin || false;
   const regQuery = {
     text:
-      'INSERT INTO users(email, first_name, last_name, password) VALUES($1, $2, $3, $4) RETURNING id, email, is_admin',
-    values: [email, first_name, last_name, hashedPassword],
+      'INSERT INTO users(email, first_name, last_name, password, is_admin) VALUES($1, $2, $3, $4, $5) RETURNING id, email, is_admin',
+    values: [email, first_name, last_name, hashedPassword, admin],
   };
 
   const client = await pool.connect();
