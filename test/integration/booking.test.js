@@ -1,7 +1,11 @@
 require('dotenv').config();
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const { createBooking, getBookings } = require('../../controllers/booking.controller');
+const {
+  createBooking,
+  getBookings,
+  deleteBooking,
+} = require('../../controllers/booking.controller');
 const pool = require('../../db');
 const hashPassword = require('../../utils/hashPassword');
 
@@ -9,8 +13,21 @@ chai.use(chaiHttp);
 const { expect } = chai;
 let server;
 let client;
+let admin;
 let user;
-let normalUser;
+let booking;
+let bus;
+let trip;
+
+const emailOne = 'admin@test.com';
+const emailTwo = 'tester@test.com';
+const first_nameOne = 'Michael';
+const first_nameTwo = 'Obi';
+const last_nameOne = 'Okeke';
+const last_nameTwo = 'Moh';
+const password = 'superpassword';
+const adminLogin = { email: emailOne, password };
+const userLogin = { email: emailTwo, password };
 
 describe('Bookings Route', () => {
   before('executing booking route test', async () => {
@@ -32,6 +49,25 @@ describe('Bookings Route', () => {
     await client.query(
       'CREATE TABLE IF NOT EXISTS trips(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), bus_id UUID NOT NULL UNIQUE, origin TEXT NOT NULL, destination TEXT NOT NULL, trip_date DATE NOT NULL, fare NUMERIC NOT NULL, status VARCHAR(20), FOREIGN KEY (bus_id) REFERENCES buses(id) ON DELETE CASCADE)',
     );
+
+    // create a user
+    const hashedPassword = await hashPassword(password);
+    await client.query({
+      text:
+        'INSERT INTO users(email, first_name, last_name, password, is_admin) VALUES ($1, $2, $3, $4, $5), ($6, $7, $8, $9, $10)',
+      values: [
+        emailOne,
+        first_nameOne,
+        last_nameOne,
+        hashedPassword,
+        true,
+        emailTwo,
+        first_nameTwo,
+        last_nameTwo,
+        hashedPassword,
+        false,
+      ],
+    });
   });
 
   after('after booking route test', async () => {
@@ -42,10 +78,14 @@ describe('Bookings Route', () => {
     client.release();
     server.close();
   });
-  describe('POST /bookings', () => {
-    let bus;
-    let trip;
 
+  it('should be a function', () => {
+    expect(getBookings).to.be.a('function');
+    expect(createBooking).to.be.a('function');
+    expect(deleteBooking).to.be.a('function');
+  });
+
+  describe('POST /bookings', () => {
     const number_plate = 'HIEHGT4-4';
     const manufacturer = 'Toyota';
     const model = 'LS343';
@@ -58,41 +98,64 @@ describe('Bookings Route', () => {
     const fare = 780;
     const status = 'active';
 
-    const email = 'bet@test.com';
-    const first_name = 'Michael';
-    const last_name = 'Okeke';
-    const password = 'superpassword';
-    const details = { email, password };
-
     before('posting to booking', async () => {
-      // create a user
-      const hashedPassword = await hashPassword(password);
-      await client.query({
-        text:
-          'INSERT INTO users(email, first_name, last_name, password, is_admin) VALUES($1, $2, $3, $4, $5) RETURNING id, is_admin, email',
-        values: [email, first_name, last_name, hashedPassword, true],
-      });
-
       // create a bus
       bus = await client.query({
         text:
-          'INSERT INTO buses(number_plate, manufacturer, model, year, capacity) VALUES($1, $2, $3, $4, $5) RETURNING id, capacity',
-        values: [number_plate, manufacturer, model, year, capacity],
+          'INSERT INTO buses(number_plate, manufacturer, model, year, capacity) VALUES($1, $2, $3, $4, $5), ($6, $7, $8, $9, $10) RETURNING id, capacity',
+        values: [
+          number_plate,
+          manufacturer,
+          model,
+          year,
+          capacity,
+          'AWK-5YTH',
+          'KIA',
+          'HR-50',
+          '2012',
+          28,
+        ],
       });
 
       // create a trip
       trip = await client.query({
         text:
-          'INSERT INTO trips(bus_id, origin, destination, trip_date, fare, status) VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
-        values: [bus.rows[0].id, origin, destination, trip_date, fare, status],
+          'INSERT INTO trips(bus_id, origin, destination, trip_date, fare, status) VALUES($1, $2, $3, $4, $5, $6), ($7, $8, $9, $10, $11, $12) RETURNING id',
+        values: [
+          bus.rows[0].id,
+          origin,
+          destination,
+          trip_date,
+          fare,
+          status,
+          bus.rows[1].id,
+          'Lagos',
+          'Imo',
+          '2020-08-2',
+          500,
+          'active',
+        ],
       });
     });
 
-    it('should signin a user', (done) => {
+    it('should signin an admin user', (done) => {
       chai
         .request(server)
         .post('/api/v1/auth/signin')
-        .send(details)
+        .send(adminLogin)
+        .end((err, res) => {
+          admin = res.body.data;
+          expect(res).to.have.status(200);
+          expect(res.body.data.token).to.be.a('string');
+          done();
+        });
+    });
+
+    it('should signin a normal user', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/auth/signin')
+        .send(userLogin)
         .end((err, res) => {
           user = res.body.data;
           expect(res).to.have.status(200);
@@ -101,17 +164,35 @@ describe('Bookings Route', () => {
         });
     });
 
-    it('should return a function', () => {
-      expect(createBooking).to.be.a('function');
-    });
-
-    it('should create a booking by the user', (done) => {
+    it('should create a booking by the user who is an admin', (done) => {
       chai
         .request(server)
         .post('/api/v1/bookings')
-        .send({ trip_id: trip.rows[0].id, user_id: user.user_id, seat_number: 3 })
+        .send({ trip_id: trip.rows[0].id, user_id: admin.user_id, seat_number: 3 })
+        .set('Authorization', `Bearer ${admin.token}`)
+        .end((err, res) => {
+          expect(res).to.have.status(201);
+          expect(res.body.data).to.include.all.keys(
+            'booking_id',
+            'trip_id',
+            'user_id',
+            'trip_date',
+            'seat_number',
+            'bus_id',
+            'email',
+          );
+          done();
+        });
+    });
+
+    it('should create a booking by the user who is not an admin', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/bookings')
+        .send({ trip_id: trip.rows[1].id, user_id: user.user_id, seat_number: 15 })
         .set('Authorization', `Bearer ${user.token}`)
         .end((err, res) => {
+          booking = res.body.data;
           expect(res).to.have.status(201);
           expect(res.body.data).to.include.all.keys(
             'booking_id',
@@ -128,40 +209,19 @@ describe('Bookings Route', () => {
   });
 
   describe('GET /bookings', () => {
-    const email = 'testing@test.com';
-    const first_name = 'Ibe';
-    const last_name = 'Nwachukwu';
-    const password = 'secretpasswordlol';
-    const details = { email, password };
-
-    before('getting bookings', async () => {
-      // create a user
-      const hashedPassword = await hashPassword(password);
-      await client.query({
-        text:
-          'INSERT INTO users(email, first_name, last_name, password, is_admin) VALUES($1, $2, $3, $4, $5) RETURNING id, is_admin, email',
-        values: [email, first_name, last_name, hashedPassword, false],
-      });
-    });
-
-    it('should signin a user', (done) => {
+    it('should see all bookings if user is an admin', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
-        .send(details)
+        .get('/api/v1/bookings')
+        .set('Authorization', `Bearer ${admin.token}`)
         .end((err, res) => {
-          normalUser = res.body.data;
           expect(res).to.have.status(200);
-          expect(res.body.data.token).to.be.a('string');
+          expect(res.body.status).to.eql('success');
+          expect(res.body.data).to.be.an('array');
           done();
         });
     });
-
-    it('should be a function', () => {
-      expect(getBookings).to.be.a('function');
-    });
-
-    it('should see all bookings if user is an admin', (done) => {
+    it('should see only the users bookings if user is not an admin', (done) => {
       chai
         .request(server)
         .get('/api/v1/bookings')
@@ -173,16 +233,29 @@ describe('Bookings Route', () => {
           done();
         });
     });
+  });
 
-    it('should see all bookings if user is not an admin', (done) => {
+  describe('DELETE /bookings/:bookingId', () => {
+    it('should delete a booking by the owner', (done) => {
       chai
         .request(server)
-        .get('/api/v1/bookings')
-        .set('Authorization', `Bearer ${normalUser.token}`)
+        .delete(`/api/v1/bookings/${booking.booking_id}`)
+        .set('Authorization', `Bearer ${user.token}`)
         .end((err, res) => {
           expect(res).to.have.status(200);
           expect(res.body.status).to.eql('success');
-          expect(res.body.data).to.be.an('array');
+          done();
+        });
+    });
+
+    it('should return respond that booking does not exists and status code 410', (done) => {
+      chai
+        .request(server)
+        .delete(`/api/v1/bookings/${booking.booking_id}`)
+        .set('Authorization', `Bearer ${user.token}`)
+        .end((err, res) => {
+          expect(res).to.have.status(410);
+          expect(res.body.status).to.eql('error');
           done();
         });
     });
