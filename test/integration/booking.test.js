@@ -235,6 +235,47 @@ describe('Bookings Route', () => {
     });
   });
 
+  describe('PATCH /bookings/:bookingId', () => {
+    it('should update users new seat number', (done) => {
+      chai
+        .request(server)
+        .patch(`/api/v1/bookings/${booking.booking_id}`)
+        .send({ seat_number: 199 })
+        .set('Authorization', `Bearer ${user.token}`)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.status).to.eql('success');
+          done();
+        });
+    });
+
+    it('should throw error for booking that does not exist', (done) => {
+      // always test this with uuidv4 compliant string
+      const uuidv4 = 'd939fc9c-d53d-4a34-b436-a7d0875ae4fe';
+      chai
+        .request(server)
+        .patch(`/api/v1/bookings/${uuidv4}`)
+        .set('Authorization', `Bearer ${user.token}`)
+        .end((err, res) => {
+          expect(res.body.status).to.eql('error');
+          expect(res).to.have.status(404);
+          done();
+        });
+    });
+
+    it('should throw error for an invalid uuid', (done) => {
+      chai
+        .request(server)
+        .patch('/api/v1/bookings/6765dhgid')
+        .set('Authorization', `Bearer ${user.token}`)
+        .end((err, res) => {
+          expect(res.body.status).to.eql('error');
+          expect(res).to.have.status(500);
+          done();
+        });
+    });
+  });
+
   describe('DELETE /bookings/:bookingId', () => {
     it('should delete a booking by the owner', (done) => {
       chai
