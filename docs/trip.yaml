@@ -1,5 +1,5 @@
 paths:
-  /api/v1/trips/:
+  /trips/:
     post:
       tags:
         - Trip
@@ -90,7 +90,7 @@ paths:
           $ref: "#/components/responses/forbidden"
         "500":
           $ref: "#/components/responses/serverError"
-  /api/v1/trips?destination=Enugu: # here Enugu is used as an example destination
+  /trips?destination=Enugu: # here Enugu is used as an example destination
     get:
       tags:
         - Trip
@@ -115,7 +115,7 @@ paths:
           $ref: "#/components/responses/forbidden"
         "500":
           $ref: "#/components/responses/serverError"
-  /api/v1/trips?origin=Onitsha: # here Onitsha is used as an example origin
+  /trips?origin=Onitsha: # here Onitsha is used as an example origin
     get:
       tags:
         - Trip
@@ -140,7 +140,7 @@ paths:
           $ref: "#/components/responses/forbidden"
         "500":
           $ref: "#/components/responses/serverError"
-  /api/v1/trips/:tripId:
+  /trips/:tripId:
     patch:
       tags:
         - Trip

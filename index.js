@@ -17,7 +17,7 @@ routes(app);
 
 // handle all errors
 // eslint-disable-next-line no-unused-vars
-app.use('/api/v1', (err, req, res, next) => {
+app.use('/', (err, req, res, next) => {
   if (app.get('env') === 'development') console.log(err);
 
   return res.status(req.status || 500).send({

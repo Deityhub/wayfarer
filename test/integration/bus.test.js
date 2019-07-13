@@ -19,7 +19,7 @@ describe('Bus Routes', () => {
     server.close();
   });
 
-  describe('POST /api/v1/bus', () => {
+  describe('POST /bus', () => {
     const number_plate = 'AWK-45HU';
     const manufacturer = 'Toyota';
     const model = 'LS300';
@@ -69,7 +69,7 @@ describe('Bus Routes', () => {
     it('should signin a user', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send(details)
         .end((err, res) => {
           user = res.body.data;
@@ -87,7 +87,7 @@ describe('Bus Routes', () => {
     it('should create a bus', (done) => {
       chai
         .request(server)
-        .post('/api/v1/bus')
+        .post('/bus')
         .set('token', user.token)
         .send(busData)
         .end((err, res) => {
@@ -106,7 +106,7 @@ describe('Bus Routes', () => {
 
       chai
         .request(server)
-        .post('/api/v1/bus')
+        .post('/bus')
         .set('token', user.token)
         .send(data)
         .end((err, res) => {
@@ -119,7 +119,7 @@ describe('Bus Routes', () => {
     it("should throw error and status code 500 when it's internal server error", (done) => {
       chai
         .request(server)
-        .post('/api/v1/bus')
+        .post('/bus')
         .set('token', user.token)
         .send({ number_plate: 454, capacity: 'hello' })
         .end((err, res) => {

@@ -1,5 +1,5 @@
 paths:
-  /api/v1/bus/:
+  /bus/:
     post:
       tags:
         - Bus

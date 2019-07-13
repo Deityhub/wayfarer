@@ -19,7 +19,7 @@ describe('Authorization for Admin Role', () => {
     server.close();
   });
 
-  describe('POST /api/v1/bus', () => {
+  describe('POST /bus', () => {
     const email = 'test@test.com';
     const first_name = 'Michael';
     const last_name = 'Okeke';
@@ -49,7 +49,7 @@ describe('Authorization for Admin Role', () => {
     it('should signin a user', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send(details)
         .end((err, res) => {
           user = res.body.data;
@@ -67,7 +67,7 @@ describe('Authorization for Admin Role', () => {
     it('should return status code 403 if not admin', (done) => {
       chai
         .request(server)
-        .post('/api/v1/bus')
+        .post('/bus')
         .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(403);

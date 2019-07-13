@@ -142,7 +142,7 @@ describe('Bookings Route', () => {
     it('should signin an admin user', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send(adminLogin)
         .end((err, res) => {
           admin = res.body.data;
@@ -155,7 +155,7 @@ describe('Bookings Route', () => {
     it('should signin a normal user', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send(userLogin)
         .end((err, res) => {
           user = res.body.data;
@@ -168,7 +168,7 @@ describe('Bookings Route', () => {
     it('should create a booking by the user who is an admin', (done) => {
       chai
         .request(server)
-        .post('/api/v1/bookings')
+        .post('/bookings')
         .send({ trip_id: trip.rows[0].id, seat_number: 3 })
         .set('token', admin.token)
         .end((err, res) => {
@@ -189,7 +189,7 @@ describe('Bookings Route', () => {
     it('should create a booking by the user who is not an admin', (done) => {
       chai
         .request(server)
-        .post('/api/v1/bookings')
+        .post('/bookings')
         .send({ trip_id: trip.rows[1].id, seat_number: 15 })
         .set('token', user.token)
         .end((err, res) => {
@@ -211,7 +211,7 @@ describe('Bookings Route', () => {
     it('should return status code 400 and error, when trip_id is empty', (done) => {
       chai
         .request(server)
-        .post('/api/v1/bookings')
+        .post('/bookings')
         .send({ trip_id: '', seat_number: 15 })
         .set('token', user.token)
         .end((err, res) => {
@@ -224,7 +224,7 @@ describe('Bookings Route', () => {
     it('should return status code 500 for internal server error', (done) => {
       chai
         .request(server)
-        .post('/api/v1/bookings')
+        .post('/bookings')
         .send({ trip_id: 45, user_id: 'fg', seat_number: 15 })
         .set('token', user.token)
         .end((err, res) => {
@@ -239,7 +239,7 @@ describe('Bookings Route', () => {
     it('should see all bookings if user is an admin', (done) => {
       chai
         .request(server)
-        .get('/api/v1/bookings')
+        .get('/bookings')
         .set('token', admin.token)
         .end((err, res) => {
           expect(res).to.have.status(200);
@@ -251,7 +251,7 @@ describe('Bookings Route', () => {
     it('should see only the users bookings if user is not an admin', (done) => {
       chai
         .request(server)
-        .get('/api/v1/bookings')
+        .get('/bookings')
         .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(200);
@@ -266,7 +266,7 @@ describe('Bookings Route', () => {
     it('should update users new seat number', (done) => {
       chai
         .request(server)
-        .patch(`/api/v1/bookings/${booking.booking_id}`)
+        .patch(`/bookings/${booking.booking_id}`)
         .send({ seat_number: 199 })
         .set('token', user.token)
         .end((err, res) => {
@@ -281,7 +281,7 @@ describe('Bookings Route', () => {
       const uuidv4 = 'd939fc9c-d53d-4a34-b436-a7d0875ae4fe';
       chai
         .request(server)
-        .patch(`/api/v1/bookings/${uuidv4}`)
+        .patch(`/bookings/${uuidv4}`)
         .set('token', user.token)
         .end((err, res) => {
           expect(res.body.status).to.eql('error');
@@ -293,7 +293,7 @@ describe('Bookings Route', () => {
     it('should throw error for an invalid uuid', (done) => {
       chai
         .request(server)
-        .patch('/api/v1/bookings/6765dhgid')
+        .patch('/bookings/6765dhgid')
         .set('token', user.token)
         .end((err, res) => {
           expect(res.body.status).to.eql('error');
@@ -307,7 +307,7 @@ describe('Bookings Route', () => {
     it('should delete a booking by the owner', (done) => {
       chai
         .request(server)
-        .delete(`/api/v1/bookings/${booking.booking_id}`)
+        .delete(`/bookings/${booking.booking_id}`)
         .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(200);
@@ -319,7 +319,7 @@ describe('Bookings Route', () => {
     it('should return respond that booking does not exists and status code 410', (done) => {
       chai
         .request(server)
-        .delete(`/api/v1/bookings/${booking.booking_id}`)
+        .delete(`/bookings/${booking.booking_id}`)
         .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(410);
@@ -331,7 +331,7 @@ describe('Bookings Route', () => {
     it('should return status code 500 for internal server error', (done) => {
       chai
         .request(server)
-        .delete('/api/v1/bookings/hgiehdg')
+        .delete('/bookings/hgiehdg')
         .set('token', user.token)
         .end((err, res) => {
           expect(res.body.status).to.eql('error');

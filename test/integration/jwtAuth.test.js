@@ -20,7 +20,7 @@ describe('Token Authentication Middleware', () => {
     server.close();
   });
 
-  describe('POST /api/v1/bus', () => {
+  describe('POST /bus', () => {
     it('should be a function', () => {
       expect(tokenAuth).to.be.a('function');
     });
@@ -28,7 +28,7 @@ describe('Token Authentication Middleware', () => {
     it('should return status code 403 if token is invalid', (done) => {
       chai
         .request(server)
-        .post('/api/v1/bus')
+        .post('/bus')
         .set('token', 'ghiehtislfjjfi3546785')
         .end((err, res) => {
           expect(res).to.have.status(403);
@@ -39,7 +39,7 @@ describe('Token Authentication Middleware', () => {
     it('should return status error and status code 401', (done) => {
       chai
         .request(server)
-        .post('/api/v1/bus')
+        .post('/bus')
         .end((err, res) => {
           expect(res.body.status).to.eql('error');
           expect(res).to.have.status(401);
