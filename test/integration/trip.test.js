@@ -88,7 +88,7 @@ describe('Trip Routes', () => {
     it('should signin a user(admin)', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send(details)
         .end((err, res) => {
           user = res.body.data;
@@ -101,7 +101,7 @@ describe('Trip Routes', () => {
     it('should signin a user(not an admin)', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send({ email: emailNormal, password })
         .end((err, res) => {
           normalUser = res.body.data;
@@ -122,7 +122,7 @@ describe('Trip Routes', () => {
 
       chai
         .request(server)
-        .post('/api/v1/trips')
+        .post('/trips')
         .send(trip)
         .set('token', user.token)
         .end((err, res) => {
@@ -145,7 +145,7 @@ describe('Trip Routes', () => {
 
       chai
         .request(server)
-        .post('/api/v1/trips')
+        .post('/trips')
         .send(trip)
         .set('token', user.token)
         .end((err, res) => {
@@ -166,7 +166,7 @@ describe('Trip Routes', () => {
 
       chai
         .request(server)
-        .post('/api/v1/trips')
+        .post('/trips')
         .send(trip)
         .set('token', normalUser.token)
         .end((err, res) => {
@@ -188,7 +188,7 @@ describe('Trip Routes', () => {
 
       chai
         .request(server)
-        .post('/api/v1/trips')
+        .post('/trips')
         .send(trip)
         .set('token', user.token)
         .end((err, res) => {
@@ -209,7 +209,7 @@ describe('Trip Routes', () => {
 
       chai
         .request(server)
-        .post('/api/v1/trips')
+        .post('/trips')
         .send(trip)
         .set('token', user.token)
         .end((err, res) => {
@@ -223,7 +223,7 @@ describe('Trip Routes', () => {
     it('should see all the available trips', (done) => {
       chai
         .request(server)
-        .get('/api/v1/trips')
+        .get('/trips')
         .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(200);
@@ -236,7 +236,7 @@ describe('Trip Routes', () => {
       it('should return all trips based on the destination', (done) => {
         chai
           .request(server)
-          .get('/api/v1/trips?destination=Enugu')
+          .get('/trips?destination=Enugu')
           .set('token', user.token)
           .end((err, res) => {
             expect(res.body.status).to.eql('success');
@@ -250,7 +250,7 @@ describe('Trip Routes', () => {
       it('should return all trips based on the origin', (done) => {
         chai
           .request(server)
-          .get('/api/v1/trips?destination=Onitsha')
+          .get('/trips?destination=Onitsha')
           .set('token', user.token)
           .end((err, res) => {
             expect(res.body.status).to.eql('success');
@@ -265,7 +265,7 @@ describe('Trip Routes', () => {
     it('should cancel a trip', (done) => {
       chai
         .request(server)
-        .patch(`/api/v1/trips/${availableTrip.trip_id}`)
+        .patch(`/trips/${availableTrip.trip_id}`)
         .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(200);
@@ -278,7 +278,7 @@ describe('Trip Routes', () => {
       const uuidv4 = 'd939fc9c-d53d-4a34-b436-a7d0875ae4fe';
       chai
         .request(server)
-        .patch(`/api/v1/trips/${uuidv4}`)
+        .patch(`/trips/${uuidv4}`)
         .set('token', user.token)
         .end((err, res) => {
           expect(res.body.status).to.eql('error');
@@ -290,7 +290,7 @@ describe('Trip Routes', () => {
     it('should throw error for an invalid uuid', (done) => {
       chai
         .request(server)
-        .patch('/api/v1/trips/6765dhgid')
+        .patch('/trips/6765dhgid')
         .set('token', user.token)
         .end((err, res) => {
           expect(res.body.status).to.eql('error');

@@ -48,7 +48,7 @@ describe('User Routes', () => {
     it('should return status code 201 and success status, on successful user signup', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signup')
+        .post('/auth/signup')
         .send({
           email,
           first_name,
@@ -65,7 +65,7 @@ describe('User Routes', () => {
     it('should return status code 500 for cases of internal server error', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signup')
+        .post('/auth/signup')
         .send({
           email: 'ab@ab',
           first_name,
@@ -82,7 +82,7 @@ describe('User Routes', () => {
     it('should return user id after creating user', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signup')
+        .post('/auth/signup')
         .send({
           email,
           first_name,
@@ -99,7 +99,7 @@ describe('User Routes', () => {
     it('should tell whether the user is an admin or not', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signup')
+        .post('/auth/signup')
         .send({
           email,
           first_name,
@@ -117,7 +117,7 @@ describe('User Routes', () => {
 
       chai
         .request(server)
-        .post('/api/v1/auth/signup')
+        .post('/auth/signup')
         .send({
           email,
           first_name,
@@ -161,7 +161,7 @@ describe('User Routes', () => {
     it('should return error and status code 400, when creating user with email already in database', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signup')
+        .post('/auth/signup')
         .send({
           email,
           first_name,
@@ -205,7 +205,7 @@ describe('User Routes', () => {
     it('should return status code 200, on successful signin', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send(details)
         .end((err, res) => {
           expect(res).to.have.status(200);
@@ -216,7 +216,7 @@ describe('User Routes', () => {
     it('should return status code 401 and status error, when using unregistered email', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send({ email: 'abc@test.com', password })
         .end((err, res) => {
           expect(res).to.have.status(401);
@@ -228,7 +228,7 @@ describe('User Routes', () => {
     it('should return status code 401 and status error, when password does not match registered password', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send({ email, password: 'testingpassword' })
         .end((err, res) => {
           expect(res).to.have.status(401);
@@ -240,7 +240,7 @@ describe('User Routes', () => {
     it('should return users id, on successful signin', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send(details)
         .end((err, res) => {
           expect(res.body.data.user_id.length).to.be.greaterThan(0);
@@ -251,7 +251,7 @@ describe('User Routes', () => {
     it('should return whether user is an admin with a boolean value, on successful signin', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send(details)
         .end((err, res) => {
           expect(res.body.data.is_admin).to.be.a('boolean');
@@ -263,7 +263,7 @@ describe('User Routes', () => {
       details = { email: '', password: '' };
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send(details)
         .end((err, res) => {
           expect(res).to.have.status(400);
@@ -275,7 +275,7 @@ describe('User Routes', () => {
     it('should return status code 500 for internal server error', (done) => {
       chai
         .request(server)
-        .post('/api/v1/auth/signin')
+        .post('/auth/signin')
         .send({ email: 'bbc', password })
         .end((err, res) => {
           expect(res).to.have.status(500);
