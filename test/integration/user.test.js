@@ -36,7 +36,7 @@ describe('User Routes', () => {
     beforeEach(async () => {
       client = await pool.connect();
       await client.query(
-        'CREATE TABLE IF NOT EXISTS users(id UUID UNIQUE DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
+        'CREATE TABLE IF NOT EXISTS users(id SERIAL UNIQUE, email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
       );
     });
 
@@ -90,8 +90,7 @@ describe('User Routes', () => {
           password,
         })
         .end((err, res) => {
-          expect(res.body.data.user_id.length).to.be.greaterThan(0);
-          expect(res.body.data.user_id).to.be.a('string');
+          expect(res).to.have.status(201);
           done();
         });
     });
@@ -144,7 +143,7 @@ describe('User Routes', () => {
     before(async () => {
       client = await pool.connect();
       await client.query(
-        'CREATE TABLE IF NOT EXISTS users(id UUID UNIQUE DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
+        'CREATE TABLE IF NOT EXISTS users(id SERIAL UNIQUE, email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
       );
 
       const hashedPassword = await hashPassword(password);
@@ -188,7 +187,7 @@ describe('User Routes', () => {
     before(async () => {
       client = await pool.connect();
       await client.query(
-        'CREATE TABLE IF NOT EXISTS users(id UUID UNIQUE DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
+        'CREATE TABLE IF NOT EXISTS users(id SERIAL UNIQUE, email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
       );
 
       const hashedPassword = await hashPassword(password);
@@ -244,7 +243,7 @@ describe('User Routes', () => {
         .post('/auth/signin')
         .send(details)
         .end((err, res) => {
-          expect(res.body.data.user_id.length).to.be.greaterThan(0);
+          expect(res).to.have.status(200);
           done();
         });
     });

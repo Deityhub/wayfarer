@@ -22,7 +22,7 @@ const createTrip = async (req, res, next) => {
 
   status = isEmpty(status) ? 'active' : status;
 
-  const tripTable = 'CREATE TABLE IF NOT EXISTS trips(id UUID UNIQUE DEFAULT uuid_generate_v4(), bus_id UUID NOT NULL UNIQUE, origin TEXT NOT NULL, destination TEXT NOT NULL, trip_date DATE NOT NULL, fare NUMERIC NOT NULL, status VARCHAR(20), PRIMARY KEY (id), FOREIGN KEY (bus_id) REFERENCES buses(id) ON DELETE CASCADE)';
+  const tripTable = 'CREATE TABLE IF NOT EXISTS trips(id SERIAL UNIQUE, bus_id INTEGER NOT NULL UNIQUE, origin TEXT NOT NULL, destination TEXT NOT NULL, trip_date DATE NOT NULL, fare NUMERIC NOT NULL, status VARCHAR(20), PRIMARY KEY (id), FOREIGN KEY (bus_id) REFERENCES buses(id) ON DELETE CASCADE)';
 
   const tripQuery = {
     text:
@@ -41,6 +41,7 @@ const createTrip = async (req, res, next) => {
     res.status(201).send({
       status: 'success',
       data: {
+        id,
         trip_id: id,
         bus_id,
         origin,

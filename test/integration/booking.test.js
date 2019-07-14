@@ -39,15 +39,15 @@ describe('Bookings Route', () => {
 
     // create table for users, buses and trips
     await client.query(
-      'CREATE TABLE IF NOT EXISTS users(id UUID UNIQUE DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
+      'CREATE TABLE IF NOT EXISTS users(id SERIAL UNIQUE, email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
     );
 
     await client.query(
-      'CREATE TABLE IF NOT EXISTS buses(id UUID UNIQUE DEFAULT uuid_generate_v4(), number_plate VARCHAR(255) UNIQUE NOT NULL, manufacturer VARCHAR, model VARCHAR(40), year VARCHAR, capacity INTEGER NOT NULL, PRIMARY KEY (id))',
+      'CREATE TABLE IF NOT EXISTS buses(id SERIAL UNIQUE, number_plate VARCHAR(255) UNIQUE NOT NULL, manufacturer VARCHAR, model VARCHAR(40), year VARCHAR, capacity INTEGER NOT NULL, PRIMARY KEY (id))',
     );
 
     await client.query(
-      'CREATE TABLE IF NOT EXISTS trips(id UUID UNIQUE DEFAULT uuid_generate_v4(), bus_id UUID NOT NULL UNIQUE, origin TEXT NOT NULL, destination TEXT NOT NULL, trip_date DATE NOT NULL, fare NUMERIC NOT NULL, status VARCHAR(20), PRIMARY KEY (id), FOREIGN KEY (bus_id) REFERENCES buses(id) ON DELETE CASCADE)',
+      'CREATE TABLE IF NOT EXISTS trips(id SERIAL UNIQUE, bus_id INTEGER NOT NULL UNIQUE, origin TEXT NOT NULL, destination TEXT NOT NULL, trip_date DATE NOT NULL, fare NUMERIC NOT NULL, status VARCHAR(20), PRIMARY KEY (id), FOREIGN KEY (bus_id) REFERENCES buses(id) ON DELETE CASCADE)',
     );
 
     // create a user
@@ -174,6 +174,7 @@ describe('Bookings Route', () => {
         .end((err, res) => {
           expect(res).to.have.status(201);
           expect(res.body.data).to.include.all.keys(
+            'id',
             'booking_id',
             'trip_id',
             'user_id',
@@ -196,6 +197,7 @@ describe('Bookings Route', () => {
           booking = res.body.data;
           expect(res).to.have.status(201);
           expect(res.body.data).to.include.all.keys(
+            'id',
             'booking_id',
             'trip_id',
             'user_id',
@@ -278,10 +280,10 @@ describe('Bookings Route', () => {
 
     it('should throw error for booking that does not exist', (done) => {
       // always test this with uuidv4 compliant string
-      const uuidv4 = 'd939fc9c-d53d-4a34-b436-a7d0875ae4fe';
+      // const uuidv4 = 'd939fc9c-d53d-4a34-b436-a7d0875ae4fe';
       chai
         .request(server)
-        .patch(`/bookings/${uuidv4}`)
+        .patch('/bookings/100')
         .set('token', user.token)
         .end((err, res) => {
           expect(res.body.status).to.eql('error');
@@ -290,7 +292,7 @@ describe('Bookings Route', () => {
         });
     });
 
-    it('should throw error for an invalid uuid', (done) => {
+    it('should throw error for an invalid ID', (done) => {
       chai
         .request(server)
         .patch('/bookings/6765dhgid')
