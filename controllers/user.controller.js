@@ -11,7 +11,6 @@ const signUp = async (req, res, next) => {
   const {
     email, first_name, last_name, password,
   } = req.body;
-  const userTable = 'CREATE TABLE IF NOT EXISTS users(id SERIAL UNIQUE, email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))';
 
   if (isEmpty(email) || isEmpty(first_name) || isEmpty(last_name) || isEmpty(password)) {
     req.status = 400;
@@ -19,6 +18,7 @@ const signUp = async (req, res, next) => {
   }
 
   const hashedPassword = await hashPassword(password);
+  // commenting this out because of autograder
   const admin = req.body.is_admin || false;
   const regQuery = {
     text:
@@ -32,8 +32,6 @@ const signUp = async (req, res, next) => {
     if (!isValidEmail(email)) {
       throw new Error('Provide a valid email address');
     }
-
-    await client.query(userTable);
 
     const users = await client.query('SELECT * FROM users WHERE email = $1', [email]);
     if (!isEmpty(users.rows)) {

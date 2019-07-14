@@ -17,14 +17,10 @@ routes(app);
 
 // handle all errors
 // eslint-disable-next-line no-unused-vars
-app.use('/', (err, req, res, next) => {
-  if (app.get('env') === 'development') console.log(err);
-
-  return res.status(req.status || 500).send({
-    status: 'error',
-    error: err.message,
-  });
-});
+app.use('/', (err, req, res, next) => res.status(req.status || 500).send({
+  status: 'error',
+  error: err.message,
+}));
 
 const port = process.env.PORT || config.get('port');
 const server = app.listen(port, () => {
