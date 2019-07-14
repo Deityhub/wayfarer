@@ -50,6 +50,10 @@ describe('Bookings Route', () => {
       'CREATE TABLE IF NOT EXISTS trips(id SERIAL UNIQUE, bus_id INTEGER NOT NULL UNIQUE, origin TEXT NOT NULL, destination TEXT NOT NULL, trip_date DATE NOT NULL, fare NUMERIC NOT NULL, status VARCHAR(20), PRIMARY KEY (id), FOREIGN KEY (bus_id) REFERENCES buses(id) ON DELETE CASCADE)',
     );
 
+    await client.query(
+      'CREATE TABLE IF NOT EXISTS bookings(id SERIAL PRIMARY KEY, trip_id SERIAL, user_id SERIAL, created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP, seat_number INTEGER, FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE)',
+    );
+
     // create a user
     const hashedPassword = await hashPassword(password);
     await client.query({
