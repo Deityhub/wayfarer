@@ -16,12 +16,12 @@ const createBooking = async (req, res, next) => {
     values: [trip_id, id, seat_number],
   };
 
-  const bookCompleteQuery = 'SELECT bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id AND users.id = $1)';
+  const bookCompleteQuery = 'SELECT bookings.id, bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id AND users.id = $1)';
 
   const client = await pool.connect();
   try {
     await client.query(
-      'CREATE TABLE IF NOT EXISTS bookings(id UUID PRIMARY KEY DEFAULT uuid_generate_v4(), trip_id UUID NOT NULL, user_id UUID NOT NULL, created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP, seat_number INTEGER NOT NULL, FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE)',
+      'CREATE TABLE IF NOT EXISTS bookings(id SERIAL PRIMARY KEY, trip_id INTEGER NOT NULL, user_id INTEGER NOT NULL, created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP, seat_number INTEGER NOT NULL, FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE)',
     );
 
     await client.query(bookQuery);
@@ -38,9 +38,9 @@ const createBooking = async (req, res, next) => {
 const getBookings = async (req, res, next) => {
   const client = await pool.connect();
 
-  const userBooks = 'SELECT bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id AND users.email = $1)';
+  const userBooks = 'SELECT bookings.id, bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id AND users.email = $1)';
 
-  const allBooks = 'SELECT bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id)';
+  const allBooks = 'SELECT bookings.id, bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id)';
 
   try {
     if (req.user.is_admin) {

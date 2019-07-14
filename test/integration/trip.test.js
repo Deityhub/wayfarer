@@ -28,7 +28,7 @@ describe('Trip Routes', () => {
     client = await pool.connect();
 
     await client.query(
-      'CREATE TABLE IF NOT EXISTS users(id UUID UNIQUE DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
+      'CREATE TABLE IF NOT EXISTS users(id SERIAL UNIQUE, email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
     );
 
     const hashedPassword = await hashPassword(password);
@@ -75,7 +75,7 @@ describe('Trip Routes', () => {
 
     before(async () => {
       await client.query(
-        'CREATE TABLE IF NOT EXISTS buses(id UUID UNIQUE DEFAULT uuid_generate_v4(), number_plate VARCHAR(255) UNIQUE NOT NULL, manufacturer VARCHAR, model VARCHAR(40), year VARCHAR, capacity INTEGER NOT NULL, PRIMARY KEY (id))',
+        'CREATE TABLE IF NOT EXISTS buses(id SERIAL UNIQUE, number_plate VARCHAR(255) UNIQUE NOT NULL, manufacturer VARCHAR, model VARCHAR(40), year VARCHAR, capacity INTEGER NOT NULL, PRIMARY KEY (id))',
       );
 
       bus = await client.query({
@@ -275,10 +275,10 @@ describe('Trip Routes', () => {
 
     it('should throw error for a trip not existing', (done) => {
       // always test this with uuidv4 compliant string
-      const uuidv4 = 'd939fc9c-d53d-4a34-b436-a7d0875ae4fe';
+      // const uuidv4 = 'd939fc9c-d53d-4a34-b436-a7d0875ae4fe';
       chai
         .request(server)
-        .patch(`/trips/${uuidv4}`)
+        .patch('/trips/100')
         .set('token', user.token)
         .end((err, res) => {
           expect(res.body.status).to.eql('error');
@@ -287,7 +287,7 @@ describe('Trip Routes', () => {
         });
     });
 
-    it('should throw error for an invalid uuid', (done) => {
+    it('should throw error for an invalid ID', (done) => {
       chai
         .request(server)
         .patch('/trips/6765dhgid')

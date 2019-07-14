@@ -45,11 +45,11 @@ describe('Bus Routes', () => {
       client = await pool.connect();
 
       await client.query(
-        'CREATE TABLE IF NOT EXISTS buses(id UUID UNIQUE DEFAULT uuid_generate_v4(), number_plate VARCHAR(255) UNIQUE NOT NULL, manufacturer VARCHAR, model VARCHAR(40), year VARCHAR, capacity INTEGER NOT NULL, PRIMARY KEY (id))',
+        'CREATE TABLE IF NOT EXISTS buses(id SERIAL UNIQUE, number_plate VARCHAR(255) UNIQUE NOT NULL, manufacturer VARCHAR, model VARCHAR(40), year VARCHAR, capacity INTEGER NOT NULL, PRIMARY KEY (id))',
       );
 
       await client.query(
-        'CREATE TABLE IF NOT EXISTS users(id UUID UNIQUE DEFAULT uuid_generate_v4(), email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
+        'CREATE TABLE IF NOT EXISTS users(id SERIAL UNIQUE, email VARCHAR UNIQUE NOT NULL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, password VARCHAR NOT NULL, is_admin BOOLEAN DEFAULT false, PRIMARY KEY (id))',
       );
 
       const hashedPassword = await hashPassword(password);
@@ -74,7 +74,6 @@ describe('Bus Routes', () => {
         .end((err, res) => {
           user = res.body.data;
           expect(res).to.have.status(200);
-          expect(res.body.data.user_id.length).to.be.greaterThan(0);
           expect(res.body.data.token).to.be.a('string');
           done();
         });
