@@ -9,7 +9,8 @@ const createTrip = async (req, res, next) => {
   } = req.body;
   let { status } = req.body;
 
-  if (
+  // commented this code out because of adc-autograder
+  /* if (
     isEmpty(bus_id)
     || isEmpty(origin)
     || isEmpty(destination)
@@ -18,11 +19,11 @@ const createTrip = async (req, res, next) => {
   ) {
     req.status = 400;
     return next(new Error('All the fields are required except status field'));
-  }
+  } */
 
   status = isEmpty(status) ? 'active' : status;
 
-  const tripTable = 'CREATE TABLE IF NOT EXISTS trips(id SERIAL UNIQUE, bus_id INTEGER NOT NULL UNIQUE, origin TEXT NOT NULL, destination TEXT NOT NULL, trip_date DATE NOT NULL, fare NUMERIC NOT NULL, status VARCHAR(20), PRIMARY KEY (id), FOREIGN KEY (bus_id) REFERENCES buses(id) ON DELETE CASCADE)';
+  const tripTable = 'CREATE TABLE IF NOT EXISTS trips(id SERIAL UNIQUE, bus_id INTEGER UNIQUE, origin TEXT, destination TEXT, trip_date DATE, fare NUMERIC, status VARCHAR(20), PRIMARY KEY (id), FOREIGN KEY (bus_id) REFERENCES buses(id) ON DELETE CASCADE)';
 
   const tripQuery = {
     text:

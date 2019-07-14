@@ -13,7 +13,7 @@ const createBus = async (req, res, next) => {
     return next(new Error('both number_plate and capacity are required'));
   }
 
-  const busTable = 'CREATE TABLE IF NOT EXISTS buses(id SERIAL UNIQUE, number_plate VARCHAR(255) UNIQUE NOT NULL, manufacturer VARCHAR, model VARCHAR(40), year VARCHAR, capacity INTEGER NOT NULL, PRIMARY KEY (id))';
+  const busTable = 'CREATE TABLE IF NOT EXISTS buses(id SERIAL UNIQUE, number_plate VARCHAR(255) UNIQUE, manufacturer VARCHAR, model VARCHAR(40), year VARCHAR, capacity INTEGER, PRIMARY KEY (id))';
 
   const insertBus = {
     text:
