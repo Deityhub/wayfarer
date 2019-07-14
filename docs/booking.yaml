@@ -14,8 +14,7 @@ paths:
               type: object
               properties:
                 trip_id:
-                  type: string
-                  format: uuid
+                  type: number
                 seat_number:
                   type: number
               required:

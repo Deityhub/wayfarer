@@ -13,8 +13,7 @@ paths:
               type: object
               properties:
                 bus_id:
-                  type: string
-                  format: uuid
+                  type: number
                 origin:
                   type: string
                 destination:
@@ -45,12 +44,12 @@ paths:
                   data:
                     type: object
                     properties:
+                      id:
+                        type: number
                       trip_id:
-                        type: id
-                        format: uuid
+                        type: number
                       bus_id:
-                        type: id
-                        format: uuid
+                        type: number
                       origin:
                         type: string
                       destination:

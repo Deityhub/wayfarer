@@ -23,8 +23,6 @@ const createTrip = async (req, res, next) => {
 
   status = isEmpty(status) ? 'active' : status;
 
-  const tripTable = 'CREATE TABLE IF NOT EXISTS trips(id SERIAL UNIQUE, bus_id INTEGER UNIQUE, origin TEXT, destination TEXT, trip_date DATE, fare NUMERIC, status VARCHAR(20), PRIMARY KEY (id), FOREIGN KEY (bus_id) REFERENCES buses(id) ON DELETE CASCADE)';
-
   const tripQuery = {
     text:
       'INSERT INTO trips(bus_id, origin, destination, trip_date, fare, status) VALUES($1, $2, $3, $4, $5, $6) RETURNING id, bus_id, origin, destination, trip_date, fare, status',
@@ -34,8 +32,6 @@ const createTrip = async (req, res, next) => {
   const client = await pool.connect();
 
   try {
-    await client.query(tripTable);
-
     const { rows } = await client.query(tripQuery);
 
     const { id } = rows[0];

@@ -21,10 +21,6 @@ const createBooking = async (req, res, next) => {
 
   const client = await pool.connect();
   try {
-    await client.query(
-      'CREATE TABLE IF NOT EXISTS bookings(id SERIAL PRIMARY KEY, trip_id INTEGER, user_id INTEGER, created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP, seat_number INTEGER, FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE)',
-    );
-
     await client.query(bookQuery);
 
     const { rows } = await client.query(bookCompleteQuery, [id]);
