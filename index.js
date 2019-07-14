@@ -18,7 +18,7 @@ routes(app);
 // handle all errors
 // eslint-disable-next-line no-unused-vars
 app.use('/', (err, req, res, next) => {
-  if (app.get('env') === 'development') console.log(err);
+  console.log(err);
 
   return res.status(req.status || 500).send({
     status: 'error',
