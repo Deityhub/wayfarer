@@ -1,7 +1,7 @@
-const express = require('express');
-const { createTrip, getAllTrips, cancelTrip, getTrip } = require('../controllers/trip.controller');
-const tokenAuth = require('../middlewares/tokenAuth');
-const isAdmin = require('../middlewares/isAdmin');
+import express from 'express';
+import { createTrip, getAllTrips, cancelTrip } from '../controllers/trip.controller';
+import tokenAuth from '../middlewares/tokenAuth';
+import isAdmin from '../middlewares/isAdmin';
 
 const router = express.Router();
 
@@ -9,4 +9,4 @@ router.post('/trips', tokenAuth, isAdmin, createTrip);
 router.get('/trips', tokenAuth, getAllTrips);
 router.patch('/trips/:tripId', tokenAuth, isAdmin, cancelTrip);
 
-module.exports = router;
+export default router;

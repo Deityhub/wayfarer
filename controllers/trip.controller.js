@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-console */
-const pool = require('../db');
-const isEmpty = require('../utils/isEmpty');
+import pool from '../db';
+import isEmpty from '../utils/isEmpty';
 
 const createTrip = async (req, res, next) => {
   const {
@@ -98,4 +98,4 @@ const cancelTrip = async (req, res, next) => {
   }
 };
 
-module.exports = { createTrip, getAllTrips, cancelTrip };
+export { createTrip, getAllTrips, cancelTrip };

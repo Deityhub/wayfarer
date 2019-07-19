@@ -1,9 +1,10 @@
-require('dotenv').config();
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const { createBus } = require('../../controllers/bus.controller');
-const pool = require('../../db');
-const hashPassword = require('../../utils/hashPassword');
+import '@babel/polyfill';
+import 'dotenv/config';
+import chai from 'chai';
+import chaiHttp from 'chai-http';
+import createBus from '../../controllers/bus.controller';
+import pool from '../../db';
+import hashPassword from '../../utils/hashPassword';
 
 const { expect } = chai;
 chai.use(chaiHttp);
@@ -69,7 +70,7 @@ describe('Bus Routes', () => {
     it('should signin a user', (done) => {
       chai
         .request(server)
-        .post('/auth/signin')
+        .post('/api/v1/auth/signin')
         .send(details)
         .end((err, res) => {
           user = res.body.data;
@@ -86,7 +87,7 @@ describe('Bus Routes', () => {
     it('should create a bus', (done) => {
       chai
         .request(server)
-        .post('/bus')
+        .post('/api/v1/bus')
         .set('token', user.token)
         .send(busData)
         .end((err, res) => {
@@ -105,7 +106,7 @@ describe('Bus Routes', () => {
 
       chai
         .request(server)
-        .post('/bus')
+        .post('/api/v1/bus')
         .set('token', user.token)
         .send(data)
         .end((err, res) => {
@@ -118,7 +119,7 @@ describe('Bus Routes', () => {
     it("should throw error and status code 500 when it's internal server error", (done) => {
       chai
         .request(server)
-        .post('/bus')
+        .post('/api/v1/bus')
         .set('token', user.token)
         .send({ number_plate: 454, capacity: 'hello' })
         .end((err, res) => {

@@ -1,5 +1,5 @@
-const pool = require('../db');
-const isEmpty = require('../utils/isEmpty');
+import pool from '../db';
+import isEmpty from '../utils/isEmpty';
 
 const createBooking = async (req, res, next) => {
   const { trip_id, seat_number } = req.body;
@@ -99,9 +99,6 @@ const updateBooking = async (req, res, next) => {
   }
 };
 
-module.exports = {
-  createBooking,
-  getBookings,
-  deleteBooking,
-  updateBooking,
+export {
+  createBooking, getBookings, deleteBooking, updateBooking,
 };

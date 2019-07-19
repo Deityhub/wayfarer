@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-expressions */
-require('dotenv').config();
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-
-const tokenAuth = require('../../middlewares/tokenAuth');
+import '@babel/polyfill';
+import 'dotenv/config';
+import chai from 'chai';
+import chaiHttp from 'chai-http';
+import tokenAuth from '../../middlewares/tokenAuth';
 
 const { expect } = chai;
 chai.use(chaiHttp);
@@ -28,7 +28,7 @@ describe('Token Authentication Middleware', () => {
     it('should return status code 403 if token is invalid', (done) => {
       chai
         .request(server)
-        .post('/bus')
+        .post('/api/v1/bus')
         .set('token', 'ghiehtislfjjfi3546785')
         .end((err, res) => {
           expect(res).to.have.status(403);
@@ -39,7 +39,7 @@ describe('Token Authentication Middleware', () => {
     it('should return status error and status code 401', (done) => {
       chai
         .request(server)
-        .post('/bus')
+        .post('/api/v1/bus')
         .end((err, res) => {
           expect(res.body.status).to.eql('error');
           expect(res).to.have.status(401);

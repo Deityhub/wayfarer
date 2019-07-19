@@ -1,8 +1,8 @@
-const jwt = require('jsonwebtoken');
-const config = require('config');
-const isEmpty = require('../utils/isEmpty');
+import jwt from 'jsonwebtoken';
+import config from 'config';
+import isEmpty from '../utils/isEmpty';
 
-module.exports = (req, res, next) => {
+export default (req, res, next) => {
   const { token } = req.headers;
 
   if (isEmpty(token)) {

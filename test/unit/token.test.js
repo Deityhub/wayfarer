@@ -1,7 +1,7 @@
-const { expect } = require('chai');
-const config = require('config');
-const jwt = require('jsonwebtoken');
-const token = require('../../utils/token');
+import { expect } from 'chai';
+import config from 'config';
+import jwt from 'jsonwebtoken';
+import token from '../../utils/token';
 
 describe('Assign JWT Token', () => {
   it('should be a function', () => {

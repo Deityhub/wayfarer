@@ -1,5 +1,5 @@
-const { expect } = require('chai');
-const isEmpty = require('../../utils/isEmpty');
+import { expect } from 'chai';
+import isEmpty from '../../utils/isEmpty';
 
 describe('isEmpty Utils Function', () => {
   it('should be a function', () => {

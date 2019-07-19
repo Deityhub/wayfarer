@@ -1,5 +1,5 @@
-const { expect } = require('chai');
-const hashPassword = require('../../utils/hashPassword');
+import { expect } from 'chai';
+import hashPassword from '../../utils/hashPassword';
 
 describe('Hash Password', () => {
   it('should be a function', () => {

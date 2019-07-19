@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-expressions */
-const { expect } = require('chai');
-const isValidEmail = require('../../utils/isValidEmail');
+import { expect } from 'chai';
+import isValidEmail from '../../utils/isValidEmail';
 
 describe('Check Email Validity', () => {
   it('should be a function', () => {

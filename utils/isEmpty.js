@@ -1,5 +1,5 @@
 /* eslint-disable no-nested-ternary */
-module.exports = val => (!val
+export default val => (!val
   ? true
   : val.constructor.name === 'Object'
     ? !Object.keys(val).length > 0

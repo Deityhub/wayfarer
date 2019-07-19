@@ -1,9 +1,10 @@
-require('dotenv').config();
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const isAdmin = require('../../middlewares/isAdmin');
-const pool = require('../../db');
-const hashPassword = require('../../utils/hashPassword');
+import '@babel/polyfill';
+import 'dotenv/config';
+import chai from 'chai';
+import chaiHttp from 'chai-http';
+import pool from '../../db';
+import hashPassword from '../../utils/hashPassword';
+import isAdmin from '../../middlewares/isAdmin';
 
 chai.use(chaiHttp);
 const { expect } = chai;
@@ -49,7 +50,7 @@ describe('Authorization for Admin Role', () => {
     it('should signin a user', (done) => {
       chai
         .request(server)
-        .post('/auth/signin')
+        .post('/api/v1/auth/signin')
         .send(details)
         .end((err, res) => {
           user = res.body.data;
@@ -67,7 +68,7 @@ describe('Authorization for Admin Role', () => {
     it('should return status code 403 if not admin', (done) => {
       chai
         .request(server)
-        .post('/bus')
+        .post('/api/v1/bus')
         .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(403);

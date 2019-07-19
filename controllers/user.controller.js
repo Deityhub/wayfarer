@@ -1,11 +1,11 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-console */
-const bcrypt = require('bcrypt');
-const pool = require('../db');
-const isEmpty = require('../utils/isEmpty');
-const hashPassword = require('../utils/hashPassword');
-const isValidEmail = require('../utils/isValidEmail');
-const tokenize = require('../utils/token');
+import bcrypt from 'bcrypt';
+import pool from '../db';
+import isEmpty from '../utils/isEmpty';
+import hashPassword from '../utils/hashPassword';
+import isValidEmail from '../utils/isValidEmail';
+import tokenize from '../utils/token';
 
 const signUp = async (req, res, next) => {
   const {
@@ -96,4 +96,4 @@ const signIn = async (req, res, next) => {
   }
 };
 
-module.exports = { signUp, signIn };
+export { signUp, signIn };

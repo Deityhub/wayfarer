@@ -1,9 +1,9 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-console */
-const pool = require('../db');
-const isEmpty = require('../utils/isEmpty');
+import pool from '../db';
+import isEmpty from '../utils/isEmpty';
 
-const createBus = async (req, res, next) => {
+export default async (req, res, next) => {
   const {
     number_plate, manufacturer, model, year, capacity,
   } = req.body;
@@ -32,5 +32,3 @@ const createBus = async (req, res, next) => {
     client.release();
   }
 };
-
-module.exports = { createBus };

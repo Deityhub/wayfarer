@@ -1,10 +1,10 @@
-const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 
-const user = require('./user.route');
-const bus = require('./bus.route');
-const booking = require('./booking.route');
-const trip = require('./trip.route');
+import user from './user.route';
+import bus from './bus.route';
+import booking from './booking.route';
+import trip from './trip.route';
 
 // Swagger definition
 const swaggerDefinition = {
@@ -16,11 +16,11 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'https://wayfarer-test.herokuapp.com',
+      url: 'https://wayfarer-test.herokuapp.com/api/v1',
       description: 'Online hosted server',
     },
     {
-      url: 'http://localhost:4000',
+      url: 'http://localhost:4000/api/v1',
       description: 'Locally hosted server',
     },
   ],
@@ -37,10 +37,12 @@ const options = {
 // initialize swagger-jsdoc
 const swaggerSpec = swaggerJSDoc(options);
 
-module.exports = (app) => {
-  app.use(user);
-  app.use(bus);
-  app.use(trip);
-  app.use(booking);
+const routes = (app) => {
+  app.use('/api/v1', user);
+  app.use('/api/v1', bus);
+  app.use('/api/v1', trip);
+  app.use('/api/v1', booking);
   app.use(swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 };
+
+export default routes;

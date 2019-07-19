@@ -1,10 +1,11 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-console */
-require('dotenv').config();
-const config = require('config');
-const express = require('express');
-const cors = require('cors');
-const routes = require('./routes');
+import '@babel/polyfill';
+import 'dotenv/config';
+import config from 'config';
+import express from 'express';
+import cors from 'cors';
+import routes from './routes/index';
 
 const app = express();
 

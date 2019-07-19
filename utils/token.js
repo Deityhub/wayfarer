@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
-const config = require('config');
+import jwt from 'jsonwebtoken';
+import config from 'config';
 
-module.exports = payload => jwt.sign(payload, config.get('jwtKey'), { expiresIn: '1h' });
+export default payload => jwt.sign(payload, config.get('jwtKey'), { expiresIn: '1h' });

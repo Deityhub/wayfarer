@@ -1,11 +1,11 @@
-const express = require('express');
-const tokenAuth = require('../middlewares/tokenAuth');
-const {
+import express from 'express';
+import tokenAuth from '../middlewares/tokenAuth';
+import {
   createBooking,
   getBookings,
   deleteBooking,
   updateBooking,
-} = require('../controllers/booking.controller');
+} from '../controllers/booking.controller';
 
 const router = express.Router();
 
@@ -14,4 +14,4 @@ router.get('/bookings', tokenAuth, getBookings);
 router.patch('/bookings/:bookingId', tokenAuth, updateBooking);
 router.delete('/bookings/:bookingId', tokenAuth, deleteBooking);
 
-module.exports = router;
+export default router;
