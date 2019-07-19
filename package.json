@@ -14,7 +14,12 @@
     "dev": "nodemon --exec babel-node index.js",
     "dist-build": "babel . --out-dir dist --ignore 'node_modules/'",
     "clean": "rm -rf dist",
-    "build": "yarn run clean && yarn run dist-build"
+    "build": "yarn run clean && yarn run dist-build",
+    "heroku-postbuild": "YARN_PRODUCTION=false"
+  },
+  "engines": {
+    "node": "10.16.0",
+    "yarn": "1.x"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
