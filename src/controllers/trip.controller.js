@@ -7,7 +7,6 @@ const createTrip = async (req, res, next) => {
   const {
     bus_id, origin, destination, trip_date, fare,
   } = req.body;
-  let { status } = req.body;
 
   // commented this code out because of adc-autograder
   /* if (
@@ -21,12 +20,10 @@ const createTrip = async (req, res, next) => {
     return next(new Error('All the fields are required except status field'));
   } */
 
-  status = isEmpty(status) ? 'active' : status;
-
   const tripQuery = {
     text:
       'INSERT INTO trips(bus_id, origin, destination, trip_date, fare, status) VALUES($1, $2, $3, $4, $5, $6) RETURNING id, bus_id, origin, destination, trip_date, fare, status',
-    values: [bus_id, origin, destination, trip_date, fare, status],
+    values: [bus_id, origin, destination, trip_date, fare, 'active'],
   };
 
   const client = await pool.connect();
@@ -34,7 +31,7 @@ const createTrip = async (req, res, next) => {
   try {
     const { rows } = await client.query(tripQuery);
 
-    const { id } = rows[0];
+    const { id, status } = rows[0];
     res.status(201).send({
       status: 'success',
       data: {
