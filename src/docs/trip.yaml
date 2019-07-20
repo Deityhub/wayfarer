@@ -1,0 +1,180 @@
+paths:
+  /trips:
+    post:
+      tags:
+        - Trip
+      summary: creates a trip
+      parameters:
+        - $ref: "#/components/parameters/token"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bus_id:
+                  type: number
+                origin:
+                  type: string
+                destination:
+                  type: string
+                trip_date:
+                  type: string
+                  format: date
+                fare:
+                  type: integer
+                  format: float
+              required:
+                - bus_id
+                - origin
+                - destination
+                - trip_date
+                - fare
+      responses:
+        "201":
+          description: Trip created successfully
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      trip_id:
+                        type: number
+                      bus_id:
+                        type: number
+                      origin:
+                        type: string
+                      destination:
+                        type: string
+                      trip_date:
+                        type: string
+                        format: date
+                      fare:
+                        type: number
+                        format: float
+                      status:
+                        type: string
+        "400":
+          $ref: "#/components/responses/badRequest"
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "500":
+          $ref: "#/components/responses/serverError"
+    get:
+      tags:
+        - Trip
+      summary: User and admin can get/see all trips
+      parameters:
+        - $ref: "#/components/parameters/token"
+      responses:
+        "200":
+          description: Successfully fetched trips
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/trips"
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "500":
+          $ref: "#/components/responses/serverError"
+  /trips?destination=Enugu: # here Enugu is used as an example destination
+    get:
+      tags:
+        - Trip
+      summary: Get all trips based on the destination
+      parameters:
+        - $ref: "#/components/parameters/token"
+        - in: query
+          name: destination
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successfully fetched trips
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/trips"
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "500":
+          $ref: "#/components/responses/serverError"
+  /trips?origin=Onitsha: # here Onitsha is used as an example origin
+    get:
+      tags:
+        - Trip
+      summary: Get all trips based on the origin
+      parameters:
+        - $ref: "#/components/parameters/token"
+        - in: query
+          name: origin
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Successfully fetched trips
+          content:
+            application/json; charset=utf-8:
+              schema:
+                $ref: "#/components/schemas/trips"
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "500":
+          $ref: "#/components/responses/serverError"
+  /trips/:tripId:
+    patch:
+      tags:
+        - Trip
+      summary: Cancel a particular trip
+      parameters:
+        - in: path
+          name: tripId
+          description: The id of the trip you want to update
+          schema:
+            type: string
+            format: uuid
+          required: true
+        - $ref: "#/components/parameters/token"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "404":
+          $ref: "#/components/responses/notFound"
+        "500":
+          $ref: "#/components/responses/serverError"
+      
+
