@@ -11,7 +11,7 @@
     "test": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --require @babel/register --recursive test/*",
     "test-dev": "NODE_ENV=test  mocha --require @babel/register --watch --recursive test/*",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "dev": "nodemon --exec babel-node index.js",
+    "dev": "nodemon --exec babel-node src/index.js",
     "dist-build": "babel ./src --out-dir dist",
     "clean": "rm -rf dist",
     "build": "yarn run clean && yarn run dist-build"
