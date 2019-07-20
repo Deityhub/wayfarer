@@ -14,8 +14,7 @@
     "dev": "nodemon --exec babel-node index.js",
     "dist-build": "babel . --out-dir dist --ignore 'node_modules/'",
     "clean": "rm -rf dist",
-    "build": "yarn run clean && yarn run dist-build",
-    "heroku-prebuild": "export YARN_PRODUCTION=false"
+    "build": "yarn run clean && yarn run dist-build"
   },
   "engines": {
     "node": "10.16.0",
