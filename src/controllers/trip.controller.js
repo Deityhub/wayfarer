@@ -9,7 +9,7 @@ const createTrip = async (req, res, next) => {
   } = req.body;
 
   // commented this code out because of adc-autograder
-  /* if (
+  if (
     isEmpty(bus_id)
     || isEmpty(origin)
     || isEmpty(destination)
@@ -18,7 +18,7 @@ const createTrip = async (req, res, next) => {
   ) {
     req.status = 400;
     return next(new Error('All the fields are required except status field'));
-  } */
+  }
 
   const tripQuery = {
     text:
@@ -29,6 +29,12 @@ const createTrip = async (req, res, next) => {
   const client = await pool.connect();
 
   try {
+    const bus = await client.query('SELECT * FROM buses WHERE id = $1', [bus_id]);
+    if (isEmpty(bus.rows)) {
+      req.status = 400;
+      return next(new Error('Sorry bus does not exist'));
+    }
+
     const { rows } = await client.query(tripQuery);
 
     const { id, status } = rows[0];
@@ -53,7 +59,7 @@ const createTrip = async (req, res, next) => {
 };
 
 const getAllTrips = async (req, res, next) => {
-  const tripQuery = 'SELECT * FROM trips';
+  const tripQuery = 'SELECT trips.id trip_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, buses.id bus_id, buses.capacity FROM trips INNER JOIN buses ON (trips.bus_id = buses.id)';
   const client = await pool.connect();
   const { destination, origin } = req.query;
 

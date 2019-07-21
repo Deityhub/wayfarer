@@ -140,7 +140,7 @@ describe('Trip Routes', () => {
     });
 
     // skipping this test because of autograder
-    it.skip('should throw error with status code 400 if any of the fields are empty', (done) => {
+    it('should throw error with status code 400 if any of the fields are empty', (done) => {
       const trip = {
         bus_id: bus.rows[0].id,
         origin: '',
@@ -177,6 +177,27 @@ describe('Trip Routes', () => {
         .set('token', normalUser.token)
         .end((err, res) => {
           expect(res).to.have.status(403);
+          expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
+
+    it('should return status code 400 and error when trying to create a trip using a bus id that does not exist', (done) => {
+      const trip = {
+        bus_id: 100,
+        origin: 'Onitsha',
+        destination: 'Enugu',
+        trip_date: '2019-08-2',
+        fare: 780,
+      };
+
+      chai
+        .request(server)
+        .post('/api/v1/trips')
+        .send(trip)
+        .set('token', user.token)
+        .end((err, res) => {
+          expect(res).to.have.status(400);
           expect(res.body.status).to.eql('error');
           done();
         });

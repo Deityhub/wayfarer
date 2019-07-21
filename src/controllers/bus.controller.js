@@ -3,7 +3,7 @@
 import pool from '../db';
 import isEmpty from '../utils/isEmpty';
 
-export default async (req, res, next) => {
+const createBus = async (req, res, next) => {
   const {
     number_plate, manufacturer, model, year, capacity,
   } = req.body;
@@ -22,6 +22,14 @@ export default async (req, res, next) => {
   const client = await pool.connect();
 
   try {
+    const busQuery = await client.query('SELECT * FROM buses WHERE number_plate = $1', [
+      number_plate,
+    ]);
+    if (!isEmpty(busQuery.rows)) {
+      req.status = 400;
+      return next(new Error('Bus with this plate number already exists'));
+    }
+
     const { rows } = await client.query(insertBus);
 
     const { id } = rows[0];
@@ -32,3 +40,19 @@ export default async (req, res, next) => {
     client.release();
   }
 };
+
+const getBuses = async (req, res, next) => {
+  const client = await pool.connect();
+
+  try {
+    const { rows } = await client.query('SELECT * FROM buses');
+
+    res.status(200).send({ status: 'success', data: rows });
+  } catch (error) {
+    next(error);
+  } finally {
+    client.release();
+  }
+};
+
+export { createBus, getBuses };

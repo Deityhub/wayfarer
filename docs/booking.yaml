@@ -53,6 +53,8 @@ paths:
                       email:
                         type: string
                         format: email
+        "400":
+          $ref: "#/components/responses/badRequest"
         "401":
           $ref: "#/components/responses/authError"
         "403":

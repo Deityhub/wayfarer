@@ -2,22 +2,33 @@ import '@babel/polyfill';
 import 'dotenv/config';
 import chai from 'chai';
 import chaiHttp from 'chai-http';
-import createBus from '../../controllers/bus.controller';
+import { createBus, getBuses } from '../../controllers/bus.controller';
 import pool from '../../db';
 import hashPassword from '../../utils/hashPassword';
 
 const { expect } = chai;
 chai.use(chaiHttp);
 let server;
+let user;
+let client;
 
 describe('Bus Routes', () => {
-  before('testing bus routes', () => {
+  before('testing bus routes', async () => {
     // eslint-disable-next-line global-require
     server = require('../../index');
+    client = await pool.connect();
   });
 
-  after('testing bus routes', () => {
+  after('testing bus routes', async () => {
+    await client.query('DROP TABLE IF EXISTS buses');
+    await client.query('DROP TABLE IF EXISTS users');
+    client.release();
     server.close();
+  });
+
+  it('should be a function', () => {
+    expect(createBus).to.be.a('function');
+    expect(getBuses).to.be.a('function');
   });
 
   describe('POST /bus', () => {
@@ -39,12 +50,8 @@ describe('Bus Routes', () => {
     const last_name = 'Okeke';
     const password = 'superpassword';
     const details = { email, password };
-    let client;
-    let user;
 
     before(async () => {
-      client = await pool.connect();
-
       await client.query(
         'CREATE TABLE IF NOT EXISTS buses(id SERIAL UNIQUE, number_plate VARCHAR(255) UNIQUE NOT NULL, manufacturer VARCHAR, model VARCHAR(40), year VARCHAR, capacity INTEGER NOT NULL, PRIMARY KEY (id))',
       );
@@ -61,11 +68,11 @@ describe('Bus Routes', () => {
       });
     });
 
-    after(async () => {
+    /* after(async () => {
       await client.query('DROP TABLE IF EXISTS buses');
       await client.query('DROP TABLE IF EXISTS users');
       client.release();
-    });
+    }); */
 
     it('should signin a user', (done) => {
       chai
@@ -80,10 +87,6 @@ describe('Bus Routes', () => {
         });
     });
 
-    it('should be a function', () => {
-      expect(createBus).to.be.a('function');
-    });
-
     it('should create a bus', (done) => {
       chai
         .request(server)
@@ -93,6 +96,19 @@ describe('Bus Routes', () => {
         .end((err, res) => {
           expect(res).to.have.status(201);
           expect(res.body.status).to.eql('success');
+          done();
+        });
+    });
+
+    it('should return status code 400 and error when creating a bus with number plate already in the database', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/bus')
+        .set('token', user.token)
+        .send(busData)
+        .end((err, res) => {
+          expect(res).to.have.status(400);
+          expect(res.body.status).to.eql('error');
           done();
         });
     });
@@ -125,6 +141,21 @@ describe('Bus Routes', () => {
         .end((err, res) => {
           expect(res).to.have.status(500);
           expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
+  });
+
+  describe('GET /bus', () => {
+    it('should return all the buses in the database', (done) => {
+      chai
+        .request(server)
+        .get('/api/v1/bus')
+        .set('token', user.token)
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.status).to.eql('success');
+          expect(res.body.data).to.be.an('array');
           done();
         });
     });

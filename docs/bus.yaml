@@ -56,3 +56,42 @@ paths:
           $ref: "#/components/responses/forbidden"
         "500":
           $ref: "#/components/responses/serverError"
+    get:
+      tags:
+        - Bus
+      summary: get all the buses
+      parameters:
+        - $ref: "#/components/parameters/token"
+      responses:
+        "200":
+          description: Ok
+          content:
+            application/json; charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        number_plate:
+                          type: string
+                        manufacturer:
+                          type: string
+                        model:
+                          type: string
+                        year:
+                          type: string
+                        capacity:
+                          type: number
+        "401":
+          $ref: "#/components/responses/authError"
+        "403":
+          $ref: "#/components/responses/forbidden"
+        "500":
+          $ref: "#/components/responses/serverError"

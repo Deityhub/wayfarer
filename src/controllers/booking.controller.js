@@ -6,10 +6,10 @@ const createBooking = async (req, res, next) => {
   const { id } = req.user;
 
   // commenting this out because of autograder
-  /* if (isEmpty(trip_id)) {
+  if (isEmpty(trip_id)) {
     req.status = 400;
     return next(new Error('user id or trip id not provided'));
-  } */
+  }
 
   const bookQuery = {
     text:
@@ -17,14 +17,40 @@ const createBooking = async (req, res, next) => {
     values: [trip_id, id, seat_number],
   };
 
-  const bookCompleteQuery = 'SELECT bookings.id, bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id) INNER JOIN users ON (bookings.user_id = users.id AND users.id = $1)';
+  const bookCompleteQuery = 'SELECT bookings.id, bookings.id booking_id, bookings.trip_id, bookings.user_id, bookings.created_on, bookings.seat_number, trips.bus_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, users.first_name, users.last_name, users.email FROM bookings INNER JOIN trips ON (bookings.trip_id = trips.id AND trip_id = $1) INNER JOIN users ON (bookings.user_id = users.id AND users.id = $2)';
+
+  const journeyQuery = 'SELECT trips.id trip_id, trips.origin, trips.destination, trips.trip_date, trips.fare, trips.status, buses.id bus_id, buses.capacity FROM trips INNER JOIN buses ON (trips.bus_id = buses.id AND trips.id = $1)';
 
   const client = await pool.connect();
   try {
+    const journey = await client.query(journeyQuery, [trip_id]);
+    if (isEmpty(journey.rows) || journey.rows[0].status === 'cancelled') {
+      req.status = 400;
+      return next(new Error('Trip does not exists or was cancelled'));
+    }
+
+    const allBookings = await client.query('SELECT * FROM bookings WHERE trip_id = $1', [trip_id]);
+    const seat_taken = allBookings.rows.some(el => el.seat_number === seat_number);
+
+    if (seat_taken) {
+      req.status = 400;
+      return next(new Error('Sorry seat number already taken!'));
+    }
+
+    if (seat_number === 1 || seat_number > journey.rows[0].capacity) {
+      req.status = 400;
+      return next(
+        new Error(
+          `Seat number is already taken or is more than the trip capacity. Choose between seat number 2 and seat number ${
+            journey.rows[0].capacity}`,
+        ),
+      );
+    }
+
     await client.query(bookQuery);
 
-    const { rows } = await client.query(bookCompleteQuery, [id]);
-    res.status(201).send({ status: 'success', data: { ...rows[0] } });
+    const { rows } = await client.query(bookCompleteQuery, [trip_id, id]);
+    res.status(201).send({ status: 'success', data: { ...rows[rows.length - 1] } });
   } catch (error) {
     next(error);
   } finally {

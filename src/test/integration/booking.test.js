@@ -115,7 +115,7 @@ describe('Bookings Route', () => {
           'KIA',
           'HR-50',
           '2012',
-          28,
+          capacity,
         ],
       });
 
@@ -192,7 +192,7 @@ describe('Bookings Route', () => {
       chai
         .request(server)
         .post('/api/v1/bookings')
-        .send({ trip_id: trip.rows[1].id, seat_number: 15 })
+        .send({ trip_id: trip.rows[1].id, seat_number: 2 })
         .set('token', user.token)
         .end((err, res) => {
           booking = res.body.data;
@@ -211,8 +211,60 @@ describe('Bookings Route', () => {
         });
     });
 
+    it('should return status code 400 and error, when specified trip id does not exist or is cancelled', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/bookings')
+        .send({ trip_id: 200, seat_number: 3 })
+        .set('token', user.token)
+        .end((err, res) => {
+          expect(res).to.have.status(400);
+          expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
+
+    it('should return status code 400 and error, when seat number is already taken for a particular trip', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/bookings')
+        .send({ trip_id: trip.rows[1].id, seat_number: 2 })
+        .set('token', user.token)
+        .end((err, res) => {
+          expect(res).to.have.status(400);
+          expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
+
+    it('should return status code 400 and error, when seat number is equal to 1', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/bookings')
+        .send({ trip_id: trip.rows[1].id, seat_number: 1 })
+        .set('token', user.token)
+        .end((err, res) => {
+          expect(res).to.have.status(400);
+          expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
+
+    it('should return status code 400 and error, when seat number is greater than the seat capacity for a particular trip', (done) => {
+      chai
+        .request(server)
+        .post('/api/v1/bookings')
+        .send({ trip_id: trip.rows[1].id, seat_number: 40 })
+        .set('token', user.token)
+        .end((err, res) => {
+          expect(res).to.have.status(400);
+          expect(res.body.status).to.eql('error');
+          done();
+        });
+    });
+
     // skipping this test because of autograder
-    it.skip('should return status code 400 and error, when trip_id is empty', (done) => {
+    it('should return status code 400 and error, when trip_id is empty', (done) => {
       chai
         .request(server)
         .post('/api/v1/bookings')
@@ -229,7 +281,7 @@ describe('Bookings Route', () => {
       chai
         .request(server)
         .post('/api/v1/bookings')
-        .send({ trip_id: 45, user_id: 'fg', seat_number: 15 })
+        .send({ trip_id: 'id', user_id: 'fg', seat_number: '15' })
         .set('token', user.token)
         .end((err, res) => {
           expect(res).to.have.status(500);
