@@ -7,13 +7,26 @@
   "author": "Ojini Chizoba Jude <judoc96@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "node index.js",
-    "test": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --recursive test/*",
-    "test-dev": "NODE_ENV=test mocha --watch --recursive test/*",
+    "start": "node dist/index.js",
+    "test": "NODE_ENV=test nyc --reporter=html --reporter=text mocha --require @babel/register --recursive src/test/*",
+    "test-dev": "NODE_ENV=test  mocha --require @babel/register --watch --recursive src/test/*",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "dev": "nodemon index.js"
+    "dev": "nodemon --exec babel-node src/index.js",
+    "dist-build": "babel ./src --out-dir dist",
+    "clean": "rm -rf dist",
+    "build": "yarn run clean && yarn run dist-build"
+  },
+  "engines": {
+    "node": "10.16.0",
+    "yarn": "1.x"
   },
   "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.5.5",
+    "@babel/node": "^7.5.5",
+    "@babel/plugin-transform-regenerator": "^7.4.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/register": "^7.5.5",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
     "coveralls": "^3.0.4",
@@ -25,10 +38,11 @@
     "nyc": "^14.1.1"
   },
   "dependencies": {
-    "dotenv": "^8.0.0",
+    "@babel/polyfill": "^7.4.4",
     "bcrypt": "^3.0.6",
     "config": "^3.1.0",
     "cors": "^2.8.5",
+    "dotenv": "^8.0.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "pg": "^7.11.0",
