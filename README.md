@@ -4,4 +4,4 @@
 
 WayFarer is a public bus transportation booking server.
 
-To read the documentation on how the api works [check this out](https://wayfarer-test.herokuapp.com)
+[check this out](https://wayfarer-test.herokuapp.com) the documentation to see how it works.
